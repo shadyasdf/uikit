@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UIKit
 {
-    public class UIKSwitcher_Name : MonoBehaviour
+    public class UIKSwitcher_Name : UIKSwitcher
     {
         public Transform GetChildByName(string _name)
         {
@@ -19,10 +19,7 @@ namespace UIKit
         
         public void SetActiveChildByName(string _name)
         {
-            foreach (Transform child in transform)
-            {
-                child.gameObject.SetActive(child.name == _name);
-            }
+            SetActiveChild(GetChildByName(_name));
         }
     }
 } // UIKit namespace
