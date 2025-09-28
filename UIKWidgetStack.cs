@@ -6,14 +6,12 @@ namespace UIKit
 {
     public class UIKWidgetStack : MonoBehaviour
     {
-        [SerializeField] private Transform stackTransform;
-
         private List<UIKWidget> widgetsInStack = new();
         
 
         public void PushToStack(string _widgetName, GameObject _widgetPrefab)
         {
-            if (TryInstantiateWidget(_widgetPrefab, stackTransform) is UIKWidget widget)
+            if (TryInstantiateWidget(_widgetPrefab, transform) is UIKWidget widget)
             {
                 widget.Setup(_widgetName, this);
             }
@@ -23,7 +21,7 @@ namespace UIKit
         
         public void PopFromStack(UIKWidget _widget)
         {
-            foreach (Transform child in stackTransform)
+            foreach (Transform child in transform)
             {
                 if (child.GetComponent<UIKWidget>() is UIKWidget widget
                     && widget == _widget)
@@ -38,9 +36,9 @@ namespace UIKit
 
         public void PopStack()
         {
-            if (stackTransform.childCount > 0)
+            if (transform.childCount > 0)
             {
-                if (stackTransform.GetChild(0).GetComponent<UIKWidget>() is UIKWidget widget)
+                if (transform.GetChild(0).GetComponent<UIKWidget>() is UIKWidget widget)
                 {
                     Destroy(widget.gameObject);
                 }
@@ -51,7 +49,7 @@ namespace UIKit
 
         public void ClearStack()
         {
-            foreach (Transform child in stackTransform)
+            foreach (Transform child in transform)
             {
                 if (child.GetComponent<UIKWidget>() is UIKWidget widget)
                 {
@@ -71,7 +69,7 @@ namespace UIKit
         {
             // Re-determine the widgets in the stack by checking our children
             widgetsInStack.Clear();
-            foreach (Transform child in stackTransform)
+            foreach (Transform child in transform)
             {
                 if (child == null)
                 {
