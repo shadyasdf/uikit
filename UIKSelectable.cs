@@ -15,8 +15,7 @@ namespace UIKit
         Left
     }
 
-    [RequireComponent(typeof(EventTrigger))]
-    public abstract class UIKSelectable : MonoBehaviour
+    public abstract class UIKSelectable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] protected bool allowAsFirstSelection = false; // Not intended to be changed during runtime
 
@@ -31,45 +30,16 @@ namespace UIKit
 
         protected virtual void Awake()
         {
-            eventTrigger = GetComponent<EventTrigger>();
-            
-            // Hook up to the hover events (this works for 2D and 3D selectables, so long as the Camera used has a PhysicsRaycaster component)
-            EventTrigger.Entry pointerEnterEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.PointerEnter);
-            if (pointerEnterEventTrigger == null)
-            {
-                pointerEnterEventTrigger = new EventTrigger.Entry() { eventID = EventTriggerType.PointerEnter };
-                eventTrigger.triggers.Add(pointerEnterEventTrigger);
-            }
-            pointerEnterEventTrigger.callback.AddListener(OnHovered);
-
-            EventTrigger.Entry pointerExitEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.PointerExit);
-            if (pointerExitEventTrigger == null)
-            {
-                pointerExitEventTrigger = new EventTrigger.Entry() { eventID = EventTriggerType.PointerExit };
-                eventTrigger.triggers.Add(pointerExitEventTrigger);
-            }
-            pointerExitEventTrigger.callback.AddListener(OnUnhovered);
+            OnPreConstruct(false);
         }
 
 #if UNITY_EDITOR
         protected virtual void OnValidate()
         {
-            // Clear all OnClick listeners, we do not want to use that event when we're using this UI system
-            Button button = GetComponent<Button>();
-            if (button != null)
-            {
-                button.onClick.RemoveAllListeners();
-            }
-
-            // Add the EventTrigger if it doesn't exist yet
-            eventTrigger = GetComponent<EventTrigger>();
-            if (eventTrigger == null)
-            {
-                eventTrigger = gameObject.AddComponent<EventTrigger>();
-            }
+            OnPreConstruct(true);
         }
 #endif // UNITY_EDITOR
-
+        
         protected virtual void OnEnable()
         {
             if (allowAsFirstSelection)
@@ -94,6 +64,13 @@ namespace UIKit
         }
         
 
+        /// <summary>
+        /// Called on Awake and OnValidate
+        /// </summary>
+        protected virtual void OnPreConstruct(bool _isOnValidate)
+        {
+        }
+        
         public abstract UIKSelectable FindUI(Vector3 _direction);
 
         public abstract UIKSelectable FindUI(UIKInputDirection _direction);
@@ -112,13 +89,13 @@ namespace UIKit
         {
             return true;
         }
-        
-        private void OnHovered(BaseEventData _baseEventData)
+
+        public virtual void OnPointerEnter(PointerEventData eventData)
         {
             SetHovered(true);
         }
 
-        private void OnUnhovered(BaseEventData _baseEventData)
+        public virtual void OnPointerExit(PointerEventData eventData)
         {
             SetHovered(false);
         }
@@ -146,100 +123,6 @@ namespace UIKit
                     }
                 }
             }
-        }
-
-        protected virtual void OnSelected(BaseEventData _baseEventData)
-        {
-        }
-
-        protected virtual void OnDeselected(BaseEventData _baseEventData)
-        {
-        }
-
-        public void AddSelectedListener(UnityAction<BaseEventData> _func)
-        {
-            // NOTE: If you get a null reference on eventTrigger here, it may be because you are calling this function inside of an Awake event
-            // which could possibly be firing before this component's Awake event, which is what assigns eventTrigger
-
-            EventTrigger.Entry selectedEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Select);
-            if (selectedEventTrigger == null)
-            {
-                selectedEventTrigger = new EventTrigger.Entry() { eventID = EventTriggerType.Select };
-                eventTrigger.triggers.Add(selectedEventTrigger);
-            }
-            selectedEventTrigger.callback.AddListener(_func);
-        }
-
-        public void RemoveSelectedListener(UnityAction<BaseEventData> _func)
-        {
-            EventTrigger.Entry selectedEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Select);
-            selectedEventTrigger?.callback.RemoveListener(_func);
-        }
-
-        public void RemoveAllSelectedListeners()
-        {
-            EventTrigger.Entry selectedEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Select);
-            selectedEventTrigger?.callback.RemoveAllListeners();
-        }
-
-        public void AddDeselectedListener(UnityAction<BaseEventData> _func)
-        {
-            // NOTE: If you get a null reference on eventTrigger here, it may be because you are calling this function inside of an Awake event
-            // which could possibly be firing before this component's Awake event, which is what assigns eventTrigger
-
-            EventTrigger.Entry deselectedEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Deselect);
-            if (deselectedEventTrigger == null)
-            {
-                deselectedEventTrigger = new EventTrigger.Entry() { eventID = EventTriggerType.Deselect };
-                eventTrigger.triggers.Add(deselectedEventTrigger);
-            }
-            deselectedEventTrigger.callback.AddListener(_func);
-        }
-
-        public void RemoveDeselectedListener(UnityAction<BaseEventData> _func)
-        {
-            EventTrigger.Entry deselectedEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Deselect);
-            deselectedEventTrigger?.callback.RemoveListener(_func);
-        }
-
-        public void RemoveAllDeselectedListeners()
-        {
-            EventTrigger.Entry deselectedEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Deselect);
-            deselectedEventTrigger?.callback.RemoveAllListeners();
-        }
-
-        public void RemovePlayerFromSelected(UIKPlayer _player)
-        {
-            if (selectedByPlayers.RemoveAll((p) => p == _player) > 0)
-            { 
-                UIKEventSystem.instance.ExecuteUIEvent(_player, this, ExecuteEvents.deselectHandler);
-            }
-        }
-
-        public void AddSubmitListener(UnityAction<BaseEventData> _func)
-        {
-            // NOTE: If you get a null reference on eventTrigger here, it may be because you are calling this function inside an Awake event
-            // which could possibly be firing before this component's Awake event, which is what assigns eventTrigger
-
-            EventTrigger.Entry submitEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Submit);
-            if (submitEventTrigger == null)
-            {
-                submitEventTrigger = new EventTrigger.Entry() { eventID = EventTriggerType.Submit };
-                eventTrigger.triggers.Add(submitEventTrigger);
-            }
-            submitEventTrigger.callback.AddListener(_func);
-        }
-
-        public void RemoveSubmitListener(UnityAction<BaseEventData> _func)
-        {
-            EventTrigger.Entry submitEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Submit);
-            submitEventTrigger?.callback.RemoveListener(_func);
-        }
-
-        public void RemoveAllSubmitListeners()
-        {
-            EventTrigger.Entry submitEventTrigger = eventTrigger.triggers.FirstOrDefault(e => e.eventID == EventTriggerType.Submit);
-            submitEventTrigger?.callback.RemoveAllListeners();
         }
 
         protected UIKInputDirection VectorToInputDirection(Vector2 _direction)

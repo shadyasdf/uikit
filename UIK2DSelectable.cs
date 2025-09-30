@@ -9,19 +9,18 @@ namespace UIKit
         public Selectable selectable { get; private set; }
 
 
-        protected override void Awake()
+        protected override void OnPreConstruct(bool _isOnValidate)
         {
-            base.Awake();
+            base.OnPreConstruct(_isOnValidate);
             
             selectable = GetComponent<Selectable>();
-
+            
             // Set the navigation mode to always be explicit
             Navigation navigation = selectable.navigation;
             navigation.mode = Navigation.Mode.Explicit;
             selectable.navigation = navigation;
         }
         
-
         public override UIKSelectable FindUI(Vector3 _direction)
         {
             if (selectable == null)
@@ -66,27 +65,6 @@ namespace UIKit
             }
 
             return null;
-        }
-
-        public void LinkNavigationTo(UIKInputDirection _direction, UIK2DSelectable _selectable)
-        {
-            Navigation navigation = selectable.navigation;
-            switch (_direction)
-            {
-                case UIKInputDirection.Up:
-                    navigation.selectOnUp = _selectable.selectable;
-                    break;
-                case UIKInputDirection.Right:
-                    navigation.selectOnRight = _selectable.selectable;
-                    break;
-                case UIKInputDirection.Down:
-                    navigation.selectOnDown = _selectable.selectable;
-                    break;
-                case UIKInputDirection.Left:
-                    navigation.selectOnLeft = _selectable.selectable;
-                    break;
-            }
-            selectable.navigation = navigation;
         }
     }
 } // UIKit namespace
