@@ -12,6 +12,7 @@ namespace UIKit
         
         public static UIKCanvas instance { get; private set; }
         
+        
         protected virtual void Awake()
         {
             if (instance != null)

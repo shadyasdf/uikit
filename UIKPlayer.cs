@@ -7,12 +7,12 @@ namespace UIKit
     {
         public UIKSelectable selectedUI { get; set; }
 
-
+        
         protected void OnSelectedUIChanged(UIKSelectable _oldSelectable, UIKSelectable _newSelectable);
 
         public UIKInputDevice GetInputDeviceType();
 
-        /// <summary> Have this function return the result of IMKPlayer.GetSelectedUI(this) </summary>
+        /// <summary> Have this function return the result of UIKPlayer.GetSelectedUI(this) </summary>
         public UIKSelectable GetSelectedUI();
 
         public static UIKSelectable GetSelectedUI(UIKPlayer _player)
@@ -20,12 +20,12 @@ namespace UIKit
             return _player.selectedUI;
         }
 
-        /// <summary> Have this function return the result of IMKPlayer.TrySelectUI(this, _selectable) </summary>
+        /// <summary> Have this function return the result of UIKPlayer.TrySelectUI(this, _selectable) </summary>
         public bool TrySelectUI(UIKSelectable _selectable);
 
         public static bool TrySelectUI(UIKPlayer _player, UIKSelectable _selectable)
         {
-            if (_selectable == null)
+            if (!_selectable)
             {
                 return false;
             }
@@ -68,12 +68,12 @@ namespace UIKit
             return true;
         }
 
-        /// <summary> Have this function return the result of IMKPlayer.TryDeselectUI(this) </summary>
+        /// <summary> Have this function return the result of UIKPlayer.TryDeselectUI(this) </summary>
         public bool TryDeselectUI();
 
         public static bool TryDeselectUI(UIKPlayer _player)
         {
-            if (_player.selectedUI == null)
+            if (!_player.selectedUI)
             {
                 return true;
             }
@@ -98,12 +98,12 @@ namespace UIKit
             return true;
         }
 
-        /// <summary> Have this function return the result of IMKPlayer.TryNavigateUIByDirection(this, _direction) </summary>
+        /// <summary> Have this function return the result of UIKPlayer.TryNavigateUIByDirection(this, _direction) </summary>
         public bool TryNavigateUIByDirection(Vector2 _direction);
 
         public static bool TryNavigateUIByDirection(UIKPlayer _player, Vector2 _direction)
         {
-            if (_player.selectedUI == null)
+            if (!_player.selectedUI)
             {
                 return _player.TrySelectUI(UIKSelectable.GetPlayerFirstSelection(_player));
             }
@@ -117,12 +117,12 @@ namespace UIKit
             return false;
         }
 
-        /// <summary> Have this function return the result of IMKPlayer.TryNavigateUIByDirection(this, _direction) </summary>
+        /// <summary> Have this function return the result of UIKPlayer.TryNavigateUIByDirection(this, _direction) </summary>
         public bool TryNavigateUIByDirection(UIKInputDirection _direction);
 
         public static bool TryNavigateUIByDirection(UIKPlayer _player, UIKInputDirection _direction)
         {
-            if (_player.selectedUI == null)
+            if (!_player.selectedUI)
             {
                 return _player.TrySelectUI(UIKSelectable.GetPlayerFirstSelection(_player));
             }
@@ -136,12 +136,12 @@ namespace UIKit
             return false;
         }
 
-        /// <summary> Have this function return the result of IMKPlayer.TrySubmitUI(this, _selectable) </summary>
+        /// <summary> Have this function return the result of UIKPlayer.TrySubmitUI(this, _selectable) </summary>
         public bool TrySubmitUI(UIKSelectable _selectable);
 
         public static bool TrySubmitUI(UIKPlayer _player, UIKSelectable _selectable)
         {
-            if (_player.selectedUI == null)
+            if (!_player.selectedUI)
             {
                 return false;
             }

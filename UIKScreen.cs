@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UIKit
 {
-    public class UIKScreen : UIKWidget
+    public abstract class UIKScreen : UIKWidget
     {
         protected virtual void Awake()
         {
