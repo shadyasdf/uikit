@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace UIKit
 {
@@ -20,12 +21,10 @@ namespace UIKit
                 Destroy(gameObject);
                 return;
             }
-
             instance = this;
-        
             DontDestroyOnLoad(gameObject);
         }
-        
+
         
         public void PushScreen(string _name)
         {
@@ -86,10 +85,32 @@ namespace UIKit
 
         private void UpdateScreenStacks()
         {
-            foreach (KeyValuePair<int, UIKWidgetStack> pair in screenStackByLayer.ToArray().OrderByDescending(p => p.Key))
+            foreach (UIKWidgetStack screenStack in GetScreenStacksOrdered())
             {
-                pair.Value.transform.SetAsFirstSibling();
+                screenStack.transform.SetAsFirstSibling();
             }
+        }
+
+        public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
+        {
+            // If any of the screens consume the input action, then we return false
+            foreach (UIKWidgetStack screenStack in GetScreenStacksOrdered())
+            {
+                foreach (UIKScreen screen in screenStack.GetWidgetsOrdered().Cast<UIKScreen>())
+                {
+                    if (!screen.OnPreInputActionTriggered(_player, _context))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private IEnumerable<UIKWidgetStack> GetScreenStacksOrdered()
+        {
+            return screenStackByLayer.OrderByDescending(p => p.Key).Select(p => p.Value);
         }
     }
 } // UIKit namespace

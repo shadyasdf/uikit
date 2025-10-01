@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace UIKit
 {
@@ -50,6 +51,39 @@ namespace UIKit
             }
 
             return null;
+        }
+        
+        public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
+        {
+            if (ShouldHandleInputActionAsBackAction(_context))
+            {
+                HandleBackAction();
+                
+                return false;
+            }
+        
+            return true;
+        }
+
+        protected virtual bool ShouldHandleInputActionAsBackAction(InputAction.CallbackContext _context)
+        {
+            return false;
+        }
+
+        public virtual void HandleBackAction()
+        {
+            CloseScreen();
+        }
+        
+        public virtual void CloseScreen()
+        {
+            if (UIKCanvas.instance)
+            {
+                if (GetType().GetCustomAttribute<UIKScreenAttribute>() is UIKScreenAttribute attribute)
+                {
+                    UIKCanvas.instance.PopScreen(attribute.name);
+                }
+            }
         }
     }
 } // UIKit namespace

@@ -114,9 +114,9 @@ namespace UIKit
                 // Since we can't tell which player sent the PointerEnter event, we have to just set all players selectUI to this as long as they have a mouse device
                 if (UIKPlayerManager.instance != null)
                 {
-                    foreach (UIKPlayer _player in UIKPlayerManager.instance.GetPlayers())
+                    foreach (UIKPlayer _player in UIKPlayerManager.instance.players)
                     {
-                        if (_player.GetInputDeviceType().UsesCursor())
+                        if (_player.inputDeviceType.UsesCursor())
                         {
                             _player.TrySelectUI(this);
                         }

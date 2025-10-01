@@ -44,9 +44,9 @@ namespace UIKit
             
             if (UIKPlayerManager.instance != null)
             {
-                foreach (UIKPlayer player in UIKPlayerManager.instance.GetPlayers())
+                foreach (UIKPlayer player in UIKPlayerManager.instance.players)
                 {
-                    if (player.GetInputDeviceType().UsesCursor())
+                    if (player.inputDeviceType.UsesCursor())
                     {
                         // If we have something selected via the internal Unity event system, and we're not hovering it [as a Cursor player], deselect it
                         if (currentSelectedGameObject)

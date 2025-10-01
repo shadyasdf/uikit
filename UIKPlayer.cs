@@ -1,18 +1,37 @@
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 
 namespace UIKit
 {
     public interface UIKPlayer
     {
+        public UnityEvent<InputAction> OnInputActionTriggered { get; set; }
+        
+        public PlayerInput playerInput { get; set; }
         public UIKSelectable selectedUI { get; set; }
+        public UIKInputDevice inputDeviceType { get; set; }
 
+
+        /// <returns>Whether to broadcast this input action</returns>
+        public bool OnPreInputActionTriggered(InputAction.CallbackContext _context);
+        
+        /// <summary>
+        /// Have this function return the result of UIKPlayer.GetInputDevices(this)
+        /// </summary>
+        public InputDevice[] GetInputDevices();
+
+        public static InputDevice[] GetInputDevices(UIKPlayer _player)
+        {
+            return _player.playerInput.devices.ToArray();
+        }
         
         protected void OnSelectedUIChanged(UIKSelectable _oldSelectable, UIKSelectable _newSelectable);
 
-        public UIKInputDevice GetInputDeviceType();
-
-        /// <summary> Have this function return the result of UIKPlayer.GetSelectedUI(this) </summary>
+        /// <summary>
+        /// Have this function return the result of UIKPlayer.GetSelectedUI(this)
+        /// </summary>
         public UIKSelectable GetSelectedUI();
 
         public static UIKSelectable GetSelectedUI(UIKPlayer _player)
@@ -20,7 +39,9 @@ namespace UIKit
             return _player.selectedUI;
         }
 
-        /// <summary> Have this function return the result of UIKPlayer.TrySelectUI(this, _selectable, _force, _executeUIEvent) </summary>
+        /// <summary>
+        /// Have this function return the result of UIKPlayer.TrySelectUI(this, _selectable, _force, _executeUIEvent)
+        /// </summary>
         public bool TrySelectUI(UIKSelectable _selectable, bool _force = false, bool _executeUIEvent = true);
 
         public static bool TrySelectUI(UIKPlayer _player, UIKSelectable _selectable, bool _force = false, bool _executeUIEvent = true)
@@ -79,7 +100,9 @@ namespace UIKit
             return true;
         }
 
-        /// <summary> Have this function return the result of UIKPlayer.TryDeselectUI(this, _force, _executeUIEvent) </summary>
+        /// <summary>
+        /// Have this function return the result of UIKPlayer.TryDeselectUI(this, _force, _executeUIEvent)
+        /// </summary>
         public bool TryDeselectUI(bool _force = false, bool _executeUIEvent = true);
 
         public static bool TryDeselectUI(UIKPlayer _player, bool _force = false, bool _executeUIEvent = true)
@@ -116,7 +139,9 @@ namespace UIKit
             return true;
         }
 
-        /// <summary> Have this function return the result of UIKPlayer.TryNavigateUIByDirection(this, _direction) </summary>
+        /// <summary>
+        /// Have this function return the result of UIKPlayer.TryNavigateUIByDirection(this, _direction)
+        /// </summary>
         public bool TryNavigateUIByDirection(Vector2 _direction);
 
         public static bool TryNavigateUIByDirection(UIKPlayer _player, Vector2 _direction)
@@ -135,7 +160,9 @@ namespace UIKit
             return false;
         }
 
-        /// <summary> Have this function return the result of UIKPlayer.TryNavigateUIByDirection(this, _direction) </summary>
+        /// <summary>
+        /// Have this function return the result of UIKPlayer.TryNavigateUIByDirection(this, _direction)
+        /// </summary>
         public bool TryNavigateUIByDirection(UIKInputDirection _direction);
 
         public static bool TryNavigateUIByDirection(UIKPlayer _player, UIKInputDirection _direction)
@@ -154,7 +181,9 @@ namespace UIKit
             return false;
         }
 
-        /// <summary> Have this function return the result of UIKPlayer.TrySubmitUI(this, _selectable, _force, _executeUIEvent) </summary>
+        /// <summary>
+        /// Have this function return the result of UIKPlayer.TrySubmitUI(this, _selectable, _force, _executeUIEvent)
+        /// </summary>
         public bool TrySubmitUI(UIKSelectable _selectable, bool _force = false, bool _executeUIEvent = true);
 
         public static bool TrySubmitUI(UIKPlayer _player, UIKSelectable _selectable, bool _force = false, bool _executeUIEvent = true)
@@ -167,7 +196,7 @@ namespace UIKit
                 }
 
                 // If we're using a mouse, don't submit on anything unless we have it selected
-                if (_player.GetInputDeviceType().UsesCursor()
+                if (_player.inputDeviceType.UsesCursor()
                     && !_player.selectedUI.selectedByPlayers.Contains(_player))
                 {
                     return false;
