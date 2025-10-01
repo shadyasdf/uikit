@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.EventSystems;
@@ -16,18 +18,18 @@ namespace UIKit
         MouseAndKeyboard = Mouse | Keyboard
     }
 
-    /// <summary> This is a singleton that lives on the EventSystem in your scene </summary>
-    public class UIKEventSystem : MonoBehaviour
+    public class UIKEventSystem : EventSystem
     {
-        [SerializeField] private EventSystem eventSystem;
         [SerializeField] private InputSystemUIInputModule inputModule;
-
 
         public static UIKEventSystem instance { get; private set; }
 
-        private void Awake()
+        
+        protected override void Awake()
         {
-            if (instance != null)
+            base.Awake();
+            
+            if (instance)
             {
                 Destroy(gameObject);
                 return;
@@ -36,7 +38,7 @@ namespace UIKit
             DontDestroyOnLoad(gameObject);
         }
 
-        private void Update()
+        protected override void Update()
         {
             if (eventSystem.currentSelectedGameObject != null)
             {
@@ -72,13 +74,13 @@ namespace UIKit
         public void ExecuteUIEvent<T>(UIKPlayer _player, UIKSelectable _selectable, ExecuteEvents.EventFunction<T> _eventFunction, string _specialInputKey = null) where T : IEventSystemHandler
         {
             if (_player == null
-                || _selectable == null)
+                || !_selectable)
             {
                 Debug.LogError("Failed to execute event because some of the supplied data was invalid");
                 return;
             }
 
-            UIKEventData uiEventData = new UIKEventData(_player, _selectable, GetEventSystem(), _specialInputKey);
+            UIKEventData uiEventData = new UIKEventData(_player, _selectable, this, _specialInputKey);
             ExecuteEvents.Execute(_selectable.gameObject, uiEventData, _eventFunction);
         }
     }
