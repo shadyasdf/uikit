@@ -32,7 +32,7 @@ namespace UIKit
             }
         }
 
-        public void OnSelect(BaseEventData _eventData)
+        public virtual void OnSelect(BaseEventData _eventData)
         {
             if (_eventData is UIKEventData eventData)
             {
@@ -40,7 +40,7 @@ namespace UIKit
             }
         }
 
-        public void OnDeselect(BaseEventData _eventData)
+        public virtual void OnDeselect(BaseEventData _eventData)
         {
             if (_eventData is UIKEventData eventData)
             {

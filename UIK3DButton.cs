@@ -6,20 +6,20 @@ namespace UIKit
 {
     public class UIK3DButton : UIK3DSelectable, ISubmitHandler, ISelectHandler, IDeselectHandler
     {
-        [SerializeField] public UnityEvent<UIKEventData> OnClick = new();
+        [SerializeField] public UnityEvent<UIKEventData> OnClicked = new();
         [SerializeField] public UnityEvent<UIKEventData> OnSelected = new();
         [SerializeField]  public UnityEvent<UIKEventData> OnDeselected = new();
         
         
-        public void OnSubmit(BaseEventData _eventData)
+        public virtual void OnSubmit(BaseEventData _eventData)
         {
             if (_eventData is UIKEventData eventData)
             {
-                OnClick?.Invoke(eventData);
+                OnClicked?.Invoke(eventData);
             }
         }
 
-        public void OnSelect(BaseEventData _eventData)
+        public virtual void OnSelect(BaseEventData _eventData)
         {
             if (_eventData is UIKEventData eventData)
             {
@@ -27,7 +27,7 @@ namespace UIKit
             }
         }
 
-        public void OnDeselect(BaseEventData _eventData)
+        public virtual void OnDeselect(BaseEventData _eventData)
         {
             if (_eventData is UIKEventData eventData)
             {
