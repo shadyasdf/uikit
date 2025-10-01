@@ -40,31 +40,38 @@ namespace UIKit
 
         protected override void Update()
         {
-            if (eventSystem.currentSelectedGameObject != null)
-            {
-                eventSystem.SetSelectedGameObject(null);
-            }
-
-            // If any of our Mouse players are no longer hovering their currently selected UI, we unselect it
+            base.Update();
+            
             if (UIKPlayerManager.instance != null)
             {
                 foreach (UIKPlayer player in UIKPlayerManager.instance.GetPlayers())
                 {
-                    if (player.GetInputDeviceType().UsesCursor()
-                        && player.GetSelectedUI() != null
-                        && !player.GetSelectedUI().hovered)
+                    if (player.GetInputDeviceType().UsesCursor())
                     {
-                        player.TryDeselectUI();
+                        // If we have something selected via the internal Unity event system, and we're not hovering it [as a Cursor player], deselect it
+                        if (currentSelectedGameObject)
+                        {
+                            List<RaycastResult> raycastResults = new();
+                            RaycastAll(new(this) { position = Input.mousePosition }, raycastResults);
+
+                            if (!raycastResults.FirstOrDefault(r => r.gameObject == currentSelectedGameObject).isValid)
+                            {
+                                SetSelectedGameObject(null, new UIKEventData(player, player.selectedUI, this));
+                                player.TryDeselectUI(true, false);
+                            }
+                        }
+                        
+                        // If any of our Cursor players are no longer hovering their currently selected UI, we deselect it
+                        if (player.GetSelectedUI()
+                            && !player.GetSelectedUI().hovered)
+                        {
+                            player.TryDeselectUI();
+                        }
                     }
                 }
             }
         }
-
-
-        public EventSystem GetEventSystem()
-        {
-            return eventSystem;
-        }
+        
 
         public InputSystemUIInputModule GetUIInputModule()
         {

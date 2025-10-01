@@ -20,10 +20,10 @@ namespace UIKit
             return _player.selectedUI;
         }
 
-        /// <summary> Have this function return the result of UIKPlayer.TrySelectUI(this, _selectable) </summary>
-        public bool TrySelectUI(UIKSelectable _selectable);
+        /// <summary> Have this function return the result of UIKPlayer.TrySelectUI(this, _selectable, _force, _executeUIEvent) </summary>
+        public bool TrySelectUI(UIKSelectable _selectable, bool _force = false, bool _executeUIEvent = true);
 
-        public static bool TrySelectUI(UIKPlayer _player, UIKSelectable _selectable)
+        public static bool TrySelectUI(UIKPlayer _player, UIKSelectable _selectable, bool _force = false, bool _executeUIEvent = true)
         {
             if (!_selectable)
             {
@@ -35,16 +35,19 @@ namespace UIKit
             {
                 return false;
             }
-
-            if (!_selectable.CanPlayerSelect(_player))
+            
+            if (!_force)
             {
-                return false;
-            }
+                if (!_selectable.CanPlayerSelect(_player))
+                {
+                    return false;
+                }
 
-            if (_player.selectedUI != null
-                && !_player.selectedUI.CanPlayerDeselect(_player))
-            {
-                return false;
+                if (_player.selectedUI != null
+                    && !_player.selectedUI.CanPlayerDeselect(_player))
+                {
+                    return false;
+                }
             }
 
             // Deselect previous selection
@@ -52,7 +55,11 @@ namespace UIKit
                 && _player.selectedUI.selectedByPlayers.Contains(_player))
             {
                 _player.selectedUI.selectedByPlayers.RemoveAll(p => p == _player);
-                UIKEventSystem.instance.ExecuteUIEvent(_player, _player.selectedUI, ExecuteEvents.deselectHandler);
+
+                if (_executeUIEvent)
+                {
+                    UIKEventSystem.instance.ExecuteUIEvent(_player, _player.selectedUI, ExecuteEvents.deselectHandler);
+                }
             }
 
             // Update the player's selected UI
@@ -62,32 +69,43 @@ namespace UIKit
             {
                 _player.selectedUI.selectedByPlayers.Add(_player);
             }
-            UIKEventSystem.instance.ExecuteUIEvent(_player, _player.selectedUI, ExecuteEvents.selectHandler);
+
+            if (_executeUIEvent)
+            {
+                UIKEventSystem.instance.ExecuteUIEvent(_player, _player.selectedUI, ExecuteEvents.selectHandler);
+            }
             _player.OnSelectedUIChanged(oldSelectable, _player.selectedUI);
 
             return true;
         }
 
-        /// <summary> Have this function return the result of UIKPlayer.TryDeselectUI(this) </summary>
-        public bool TryDeselectUI();
+        /// <summary> Have this function return the result of UIKPlayer.TryDeselectUI(this, _force, _executeUIEvent) </summary>
+        public bool TryDeselectUI(bool _force = false, bool _executeUIEvent = true);
 
-        public static bool TryDeselectUI(UIKPlayer _player)
+        public static bool TryDeselectUI(UIKPlayer _player, bool _force = false, bool _executeUIEvent = true)
         {
             if (!_player.selectedUI)
             {
                 return true;
             }
-
-            if (!_player.selectedUI.CanPlayerDeselect(_player))
+            
+            if (!_force)
             {
-                return false;
+                if (!_player.selectedUI.CanPlayerDeselect(_player))
+                {
+                    return false;
+                }
             }
 
             // Deselect previous selection
             if (_player.selectedUI.selectedByPlayers.Contains(_player))
             {
                 _player.selectedUI.selectedByPlayers.RemoveAll(p => p == _player);
-                UIKEventSystem.instance.ExecuteUIEvent(_player, _player.selectedUI, ExecuteEvents.deselectHandler);
+
+                if (_executeUIEvent)
+                {
+                    UIKEventSystem.instance.ExecuteUIEvent(_player, _player.selectedUI, ExecuteEvents.deselectHandler);
+                }
             }
 
             // Update the player's selected UI
@@ -136,29 +154,36 @@ namespace UIKit
             return false;
         }
 
-        /// <summary> Have this function return the result of UIKPlayer.TrySubmitUI(this, _selectable) </summary>
-        public bool TrySubmitUI(UIKSelectable _selectable);
+        /// <summary> Have this function return the result of UIKPlayer.TrySubmitUI(this, _selectable, _force, _executeUIEvent) </summary>
+        public bool TrySubmitUI(UIKSelectable _selectable, bool _force = false, bool _executeUIEvent = true);
 
-        public static bool TrySubmitUI(UIKPlayer _player, UIKSelectable _selectable)
+        public static bool TrySubmitUI(UIKPlayer _player, UIKSelectable _selectable, bool _force = false, bool _executeUIEvent = true)
         {
-            if (!_player.selectedUI)
+            if (!_force)
             {
-                return false;
+                if (!_player.selectedUI)
+                {
+                    return false;
+                }
+
+                // If we're using a mouse, don't submit on anything unless we have it selected
+                if (_player.GetInputDeviceType().UsesCursor()
+                    && !_player.selectedUI.selectedByPlayers.Contains(_player))
+                {
+                    return false;
+                }
+
+                if (!_player.selectedUI.CanPlayerSubmit(_player))
+                {
+                    return false;
+                }
             }
 
-            // If we're using a mouse, don't submit on anything unless we have it selected
-            if (_player.GetInputDeviceType().UsesCursor()
-                && !_player.selectedUI.selectedByPlayers.Contains(_player))
+            if (_executeUIEvent)
             {
-                return false;
+                UIKEventSystem.instance.ExecuteUIEvent(_player, _player.selectedUI, ExecuteEvents.submitHandler);
             }
-
-            if (!_player.selectedUI.CanPlayerSubmit(_player))
-            {
-                return false;
-            }
-
-            UIKEventSystem.instance.ExecuteUIEvent(_player, _player.selectedUI, ExecuteEvents.submitHandler);
+            
             return true;
         }
     }
