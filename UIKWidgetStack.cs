@@ -26,7 +26,7 @@ namespace UIKit
                 if (child.GetComponent<UIKWidget>() is UIKWidget widget
                     && widget == _widget)
                 {
-                    Destroy(widget.gameObject);
+                    widget.gameObject.SafeDestroy();
                     break;
                 }
             }
@@ -40,7 +40,7 @@ namespace UIKit
             {
                 if (transform.GetChild(0).GetComponent<UIKWidget>() is UIKWidget widget)
                 {
-                    Destroy(widget.gameObject);
+                    widget.gameObject.SafeDestroy();
                 }
             }
             
@@ -53,13 +53,25 @@ namespace UIKit
             {
                 if (child.GetComponent<UIKWidget>() is UIKWidget widget)
                 {
-                    Destroy(widget.gameObject);
+                    widget.gameObject.SafeDestroy();
                 }
             }
             
             UpdateWidgetsInStack();
         }
 
+        public List<UIKWidget> GetWidgets()
+        {
+            return widgetsInStack;
+        }
+
+        public List<UIKWidget> GetWidgetsOrdered()
+        {
+            List<UIKWidget> reversedWidgets = widgetsInStack;
+            reversedWidgets.Reverse();
+            return reversedWidgets;
+        }
+        
         public UIKWidget GetWidgetByName(string _widgetName)
         {
             return widgetsInStack.FirstOrDefault(w => w.widgetName == _widgetName);
@@ -71,11 +83,13 @@ namespace UIKit
             widgetsInStack.Clear();
             foreach (Transform child in transform)
             {
-                if (child == null)
+                if (!child
+                    || !child.gameObject
+                    || child.gameObject.IsPendingDestroy())
                 {
                     continue;
                 }
-                
+
                 if (child.GetComponent<UIKWidget>() is UIKWidget widget)
                 {
                     widgetsInStack.Add(widget);
