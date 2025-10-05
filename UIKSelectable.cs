@@ -61,6 +61,7 @@ namespace UIKit
 
         protected virtual void OnDestroy()
         {
+            OnPreDestroy();
         }
         
 
@@ -68,6 +69,13 @@ namespace UIKit
         /// Called on Awake and OnValidate
         /// </summary>
         protected virtual void OnPreConstruct(bool _isOnValidate)
+        {
+        }
+
+        /// <summary>
+        /// Called on OnDestroy
+        /// </summary>
+        protected virtual void OnPreDestroy()
         {
         }
         

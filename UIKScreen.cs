@@ -2,12 +2,25 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace UIKit
 {
+    [AttributeUsage(AttributeTargets.Class)]
+    public class UIKScreenAttribute : Attribute
+    {
+        public string name;
+        public int layer;
+    }
+    
     public abstract class UIKScreen : UIKWidget
     {
+        [SerializeField] public UIKInputAction backInputAction;
+
+        protected Dictionary<UIKInputAction, List<UIKButton>> buttonByClickAction = new();
+        
+        
         protected virtual void Awake()
         {
         }
@@ -16,9 +29,88 @@ namespace UIKit
         {
         }
 
+        
+        public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
+        {
+            // Only try to consume input actions on the screen if we're active
+            if (active)
+            {
+                // If this was a button press
+                if (_context.action.WasPressedThisFrame()
+                    && _context.action.triggered)
+                {
+                    // If this is a back action, and we'd like to handle it
+                    if (backInputAction == _context.action)
+                    {
+                        HandleBackAction();
+                        
+                        return false;
+                    }
+                    
+                    // If any of our registered buttons wants to consume this input action, handle it with a click event
+                    if (buttonByClickAction.TryGetValue(_context.action, out List<UIKButton> buttons))
+                    {
+                        foreach (UIKButton button in buttons)
+                        {
+                            button.GetOnClickedEvent().Invoke(new UIKEventData(_player, button.GetSelectable(), EventSystem.current));
+                        }
+                        
+                        return false;
+                    }
+                }
+            }
+        
+            return true;
+        }
 
+        public virtual void HandleBackAction()
+        {
+            CloseScreen();
+        }
+        
+        public virtual void CloseScreen()
+        {
+            if (UIKCanvas.instance)
+            {
+                if (GetType().GetCustomAttribute<UIKScreenAttribute>() is UIKScreenAttribute attribute)
+                {
+                    UIKCanvas.instance.PopScreen(attribute.name);
+                }
+            }
+        }
+
+        public virtual void RegisterButton(UIKButton _button)
+        {
+            if (_button?.GetClickAction() is UIKInputAction clickAction
+                && clickAction.IsValid())
+            {
+                if (buttonByClickAction.TryGetValue(clickAction, out List<UIKButton> boundButtons))
+                {
+                    boundButtons.Add(_button);
+                }
+                else
+                {
+                    buttonByClickAction.Add(clickAction, new List<UIKButton>() { _button });
+                }
+            }
+        }
+
+        public virtual void UnregisterButton(UIKButton _button)
+        {
+            if (_button?.GetClickAction() is UIKInputAction clickAction
+                && clickAction.IsValid())
+            {
+                if (buttonByClickAction.TryGetValue(clickAction, out List<UIKButton> boundButtons))
+                {
+                    boundButtons.Remove(_button);
+                }
+            }
+        }
+        
+        
         private static Dictionary<string, GameObject> screenPrefabByName = new();
 
+        
         public static GameObject GetScreenPrefab(string _name)
         {
             if (screenPrefabByName.ContainsKey(_name))
@@ -51,39 +143,6 @@ namespace UIKit
             }
 
             return null;
-        }
-        
-        public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
-        {
-            if (ShouldHandleInputActionAsBackAction(_context))
-            {
-                HandleBackAction();
-                
-                return false;
-            }
-        
-            return true;
-        }
-
-        protected virtual bool ShouldHandleInputActionAsBackAction(InputAction.CallbackContext _context)
-        {
-            return false;
-        }
-
-        public virtual void HandleBackAction()
-        {
-            CloseScreen();
-        }
-        
-        public virtual void CloseScreen()
-        {
-            if (UIKCanvas.instance)
-            {
-                if (GetType().GetCustomAttribute<UIKScreenAttribute>() is UIKScreenAttribute attribute)
-                {
-                    UIKCanvas.instance.PopScreen(attribute.name);
-                }
-            }
         }
     }
 } // UIKit namespace
