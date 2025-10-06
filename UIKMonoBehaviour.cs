@@ -38,5 +38,21 @@ namespace UIKit
         protected virtual void OnPreDestroy()
         {
         }
+
+
+        public UIKCanvas GetCanvas()
+        {
+            return GetComponentInParent<UIKCanvas>();
+        }
+
+        public UIKPlayer GetOwningPlayer()
+        {
+            if (GetCanvas() is UIKCanvas canvas)
+            {
+                return canvas.GetOwningPlayer();
+            }
+
+            return null;
+        }
     }
 } // UIKit namespace

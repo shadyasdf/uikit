@@ -25,6 +25,23 @@ namespace UIKit
             DontDestroyOnLoad(gameObject);
         }
 
+
+        public virtual UIKPlayer GetOwningPlayer()
+        {
+            // Base implementation just gets the first local player found, but you can override this for more complex behaviour
+            // where there might be multiple local players and multiple canvases. You just need to have the canvases keep track
+            // of their player.
+            
+            if (UIKPlayerManager.instance != null)
+            {
+                if (UIKPlayerManager.instance.players.FirstOrDefault(p => p.GetIsLocal()) is UIKPlayer player)
+                {
+                    return player;
+                }
+            }
+
+            return null;
+        }
         
         public void PushScreen(string _name)
         {

@@ -13,6 +13,8 @@ namespace UIKit
 
         [SerializeField] protected UIKInputAction clickInputAction;
         
+        [SerializeField] protected UIKActionDisplay actionDisplay;
+        
 
         protected override void OnPreConstruct(bool _isOnValidate)
         {
@@ -28,6 +30,13 @@ namespace UIKit
             if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
             {
                 screen.RegisterButton(this);
+            }
+
+            // If we have an action display, update its visuals
+            if (actionDisplay
+                && clickInputAction.IsValid())
+            {
+                actionDisplay.SetInputAction(clickInputAction);
             }
         }
 

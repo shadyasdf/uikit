@@ -14,6 +14,9 @@ namespace UIKit
         public UIKInputDevice inputDeviceType { get; set; }
 
 
+        /// <returns>Whether this player is locally controlled</returns>
+        public bool GetIsLocal();
+        
         /// <returns>Whether to broadcast this input action</returns>
         public bool OnPreInputActionTriggered(InputAction.CallbackContext _context);
         
