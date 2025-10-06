@@ -11,9 +11,8 @@ namespace UIKit
         [SerializeField] protected UnityEvent<UIKEventData> OnSelected = new();
         [SerializeField] protected UnityEvent<UIKEventData> OnDeselected = new();
 
+        [SerializeField] protected UIKActionObjectReference clickActionObject;
         [SerializeField] protected UIKInputAction clickInputAction;
-        
-        [SerializeField] protected UIKActionDisplay actionDisplay;
         
 
         protected override void OnPreConstruct(bool _isOnValidate)
@@ -30,13 +29,6 @@ namespace UIKit
             if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
             {
                 screen.RegisterButton(this);
-            }
-
-            // If we have an action display, update its visuals
-            if (actionDisplay
-                && clickInputAction.IsValid())
-            {
-                actionDisplay.SetInputAction(clickInputAction);
             }
         }
 
@@ -76,7 +68,15 @@ namespace UIKit
 
         public void HandleClick(UIKEventData _eventData)
         {
-            OnClicked?.Invoke(_eventData);
+            if (clickActionObject != null
+                && clickActionObject.GetActionObject() is UIKActionObject actionObject)
+            {
+                actionObject.TryExecute();
+            }
+            else
+            {
+                OnClicked?.Invoke(_eventData);
+            }
         }
 
         public void HandleSelected(UIKEventData _eventData)
