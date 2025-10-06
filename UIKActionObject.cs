@@ -5,6 +5,12 @@ using UnityEngine;
 
 namespace UIKit
 {
+    [AttributeUsage(AttributeTargets.Class)]
+    public class UIKActionObjectAttribute : Attribute
+    {
+        public string actionText;
+    }
+    
     public abstract class UIKActionObject
     {
         public virtual void OnReceivedContext(params object[] _args)
@@ -53,31 +59,10 @@ namespace UIKit
     public static class UIKActionObjectReflector
     {
         private static List<UIKActionObject> actionObjects = new();
-
-#if !UNITY_EDITOR
-        private static bool blockRefreshes = false;
-#endif // !UNITY_EDITOR
         
         
         static UIKActionObjectReflector()
         {
-            RefreshActionObjects();
-        }
-
-
-        public static void RefreshActionObjects()
-        {
-#if !UNITY_EDITOR
-            // Only refresh once in non-editor modes, we know our action objects aren't changing
-            if (blockRefreshes)
-            {
-                return;
-            }
-            blockRefreshes = true;
-#endif // !UNITY_EDITOR
-            
-            actionObjects.Clear();
-            
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (Type type in assembly.GetTypes())
@@ -94,6 +79,7 @@ namespace UIKit
                 }
             }
         }
+
         
         private static UIKActionObject Get(Type _type)
         {

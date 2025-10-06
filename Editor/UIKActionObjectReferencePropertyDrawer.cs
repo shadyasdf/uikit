@@ -16,7 +16,6 @@ namespace UIKit
             
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
-            UIKActionObjectReflector.RefreshActionObjects();
             List<UIKActionObject> actionObjects = UIKActionObjectReflector.GetAllActionObjects();
 
             List<string> actionObjectOptions = new();
