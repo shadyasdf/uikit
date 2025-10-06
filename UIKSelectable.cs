@@ -15,7 +15,7 @@ namespace UIKit
         Left
     }
 
-    public abstract class UIKSelectable : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public abstract class UIKSelectable : UIKMonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] protected bool allowAsFirstSelection = false; // Not intended to be changed during runtime
 
@@ -26,19 +26,7 @@ namespace UIKit
         protected EventTrigger eventTrigger { get; private set; }
 
         private static List<UIKSelectable> firstSelections = new();
-
-
-        protected virtual void Awake()
-        {
-            OnPreConstruct(false);
-        }
-
-#if UNITY_EDITOR
-        protected virtual void OnValidate()
-        {
-            OnPreConstruct(true);
-        }
-#endif // UNITY_EDITOR
+        
         
         protected virtual void OnEnable()
         {
@@ -59,25 +47,6 @@ namespace UIKit
             }
         }
 
-        protected virtual void OnDestroy()
-        {
-            OnPreDestroy();
-        }
-        
-
-        /// <summary>
-        /// Called on Awake and OnValidate
-        /// </summary>
-        protected virtual void OnPreConstruct(bool _isOnValidate)
-        {
-        }
-
-        /// <summary>
-        /// Called on OnDestroy
-        /// </summary>
-        protected virtual void OnPreDestroy()
-        {
-        }
         
         public abstract UIKSelectable FindUI(Vector3 _direction);
 
