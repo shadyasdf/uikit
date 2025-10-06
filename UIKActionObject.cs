@@ -63,6 +63,8 @@ namespace UIKit
         
         static UIKActionObjectReflector()
         {
+            actionObjects.Clear();
+            
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (Type type in assembly.GetTypes())
@@ -96,6 +98,15 @@ namespace UIKit
 
         public static List<UIKActionObject> GetAllActionObjects()
         {
+            // Clear out invalid action objects
+            for (int i = actionObjects.Count - 1; i >= 0; i--)
+            {
+                if (actionObjects[i] == null)
+                {
+                    actionObjects.RemoveAt(i);
+                }
+            }
+            
             return actionObjects;
         }
         
