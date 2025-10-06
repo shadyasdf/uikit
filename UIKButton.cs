@@ -6,9 +6,9 @@ namespace UIKit
 {
     public interface UIKButton : ISubmitHandler, ISelectHandler, IDeselectHandler
     {
-        public UnityEvent<UIKEventData> GetOnClickedEvent();
-        public UnityEvent<UIKEventData> GetOnSelectedEvent();
-        public UnityEvent<UIKEventData> GetOnDeselectedEvent();
+        public void HandleClick(UIKEventData _eventData);
+        public void HandleSelected(UIKEventData _eventData);
+        public void HandleDeselected(UIKEventData _eventData);
         
         public UIKInputAction GetClickAction();
         

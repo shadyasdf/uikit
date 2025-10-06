@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -127,12 +125,12 @@ namespace UIKit
     }
     
 #if UNITY_EDITOR
-    public static class UIKActionReflector
+    public static class UIKInputActionReflector
     {
         private static List<InputActionAsset> inputActionAssets = new();
         
         
-        static UIKActionReflector()
+        static UIKInputActionReflector()
         {
             // Search for all assets of type InputActionAsset
             string[] guids = AssetDatabase.FindAssets("t:InputActionAsset");

@@ -37,7 +37,7 @@ namespace UIKit
         {
             if (_eventData is UIKEventData eventData)
             {
-                OnClicked?.Invoke(eventData);
+                HandleClick(eventData);
             }
         }
 
@@ -45,7 +45,7 @@ namespace UIKit
         {
             if (_eventData is UIKEventData eventData)
             {
-                OnSelected?.Invoke(eventData);
+                HandleSelected(eventData);
             }
         }
 
@@ -53,23 +53,23 @@ namespace UIKit
         {
             if (_eventData is UIKEventData eventData)
             {
-                OnDeselected?.Invoke(eventData);
+                HandleDeselected(eventData);
             }
         }
 
-        public UnityEvent<UIKEventData> GetOnClickedEvent()
+        public void HandleClick(UIKEventData _eventData)
         {
-            return OnClicked;
+            OnClicked?.Invoke(_eventData);
         }
 
-        public UnityEvent<UIKEventData> GetOnSelectedEvent()
+        public void HandleSelected(UIKEventData _eventData)
         {
-            return OnSelected;
+            OnSelected?.Invoke(_eventData);
         }
 
-        public UnityEvent<UIKEventData> GetOnDeselectedEvent()
+        public void HandleDeselected(UIKEventData _eventData)
         {
-            return OnDeselected;
+            OnDeselected?.Invoke(_eventData);
         }
 
         public UIKInputAction GetClickAction()

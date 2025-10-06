@@ -52,7 +52,7 @@ namespace UIKit
                     {
                         foreach (UIKButton button in buttons)
                         {
-                            button.GetOnClickedEvent().Invoke(new UIKEventData(_player, button.GetSelectable(), EventSystem.current));
+                            button.HandleClick(new UIKEventData(_player, button.GetSelectable(), EventSystem.current));
                         }
                         
                         return false;

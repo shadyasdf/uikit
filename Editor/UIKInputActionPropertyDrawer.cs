@@ -7,7 +7,7 @@ namespace UIKit
 {
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(UIKInputAction))]
-    public class UIKActionPropertyDrawer : PropertyDrawer
+    public class UIKInputActionPropertyDrawer : PropertyDrawer
     {
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -17,7 +17,7 @@ namespace UIKit
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
             List<InputAction> inputActions = new();
-            List<InputActionAsset> inputActionAssets = UIKActionReflector.GetAllInputActionAssets();
+            List<InputActionAsset> inputActionAssets = UIKInputActionReflector.GetAllInputActionAssets();
             foreach (InputActionAsset inputActionAsset in inputActionAssets)
             {
                 foreach (InputActionMap inputActionMap in inputActionAsset.actionMaps)
