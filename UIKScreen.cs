@@ -52,7 +52,11 @@ namespace UIKit
                     {
                         foreach (UIKButton button in buttons)
                         {
-                            button.HandleClick(new UIKEventData(_player, button.GetSelectable(), EventSystem.current));
+                            if (button is UIKSelectable selectable)
+                            {
+                                _player.TrySelectUI(selectable);
+                                _player.TrySubmitUI(selectable);
+                            }
                         }
                         
                         return false;
