@@ -52,10 +52,12 @@ namespace UIKit
                     {
                         foreach (UIKButton button in buttons)
                         {
-                            if (button is UIKSelectable selectable)
+                            if (button is UIKTarget selectable)
                             {
-                                _player.TrySelectUI(selectable);
-                                _player.TrySubmitUI(selectable);
+                                if (_player.TryTargetUI(selectable))
+                                {
+                                    _player.TrySubmitUI(selectable);
+                                }
                             }
                         }
                         

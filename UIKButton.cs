@@ -12,6 +12,6 @@ namespace UIKit
         
         public UIKInputAction GetClickAction();
         
-        public UIKSelectable GetSelectable();
+        public UIKTarget GetSelectable();
     }
 } // UIKit namespace

@@ -5,11 +5,10 @@ using UnityEngine.UI;
 
 namespace UIKit
 {
-    public class UIK2DButton : UIK2DSelectable, UIKButton
+    [RequireComponent(typeof(UIK2DButtonStyle))]
+    public class UIK2DButton : UIK2DTarget, UIKButton
     {
-        [SerializeField] protected UnityEvent<UIKEventData> OnClicked = new();
-        [SerializeField] protected UnityEvent<UIKEventData> OnSelected = new();
-        [SerializeField] protected UnityEvent<UIKEventData> OnDeselected = new();
+        [SerializeField] public UnityEvent<UIKEventData> OnClicked = new();
 
         [SerializeField] protected UIKActionObjectReference clickActionObject;
         [SerializeField] protected UIKInputAction clickInputAction;
@@ -81,12 +80,18 @@ namespace UIKit
 
         public void HandleSelected(UIKEventData _eventData)
         {
-            OnSelected?.Invoke(_eventData);
+            if (_eventData is UIKEventData eventData)
+            {
+                eventData.pressingPlayer?.TryTargetUI(this);
+            }
         }
 
         public void HandleDeselected(UIKEventData _eventData)
         {
-            OnDeselected?.Invoke(_eventData);
+            if (_eventData is UIKEventData eventData)
+            {
+                eventData.pressingPlayer?.TryUntargetUI(this);
+            }
         }
 
         public UIKInputAction GetClickAction()
@@ -94,7 +99,7 @@ namespace UIKit
             return clickInputAction;
         }
 
-        public UIKSelectable GetSelectable()
+        public UIKTarget GetSelectable()
         {
             return this;
         }

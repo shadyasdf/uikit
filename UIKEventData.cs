@@ -5,14 +5,14 @@ namespace UIKit
     public class UIKEventData : BaseEventData
     {
         public UIKPlayer pressingPlayer;
-        public UIKSelectable pressedUISelectable;
+        public UIKTarget pressedUITarget;
         public string specialInputKey;
 
 
-        public UIKEventData(UIKPlayer _pressingPlayer, UIKSelectable _pressedUISelectable, EventSystem _eventSystem, string _specialInputKey = null) : base(_eventSystem)
+        public UIKEventData(UIKPlayer _pressingPlayer, UIKTarget _pressedUITarget, EventSystem _eventSystem, string _specialInputKey = null) : base(_eventSystem)
         {
             pressingPlayer = _pressingPlayer;
-            pressedUISelectable = _pressedUISelectable;
+            pressedUITarget = _pressedUITarget;
             specialInputKey = _specialInputKey;
         }
     }

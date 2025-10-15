@@ -15,24 +15,27 @@ namespace UIKit
         Left
     }
 
-    public abstract class UIKSelectable : UIKMonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public abstract class UIKTarget : UIKMonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-        [SerializeField] protected bool allowAsFirstSelection = false; // Not intended to be changed during runtime
+        [SerializeField] public UnityEvent<UIKPlayer> OnTargeted = new();
+        [SerializeField] public UnityEvent<UIKPlayer> OnUntargeted = new();
+        
+        [SerializeField] protected bool allowAsFirstTarget = false; // Not intended to be changed during runtime
 
-        [HideInInspector] public List<UIKPlayer> selectedByPlayers = new();
+        [HideInInspector] public List<UIKPlayer> targetedByPlayers = new();
         public bool hovered { get; private set; } // Hovered is only used for the KeyboardAndMouse InputDeviceType
-        public bool selected { get => selectedByPlayers.Count > 0; }
+        public bool targeted { get => targetedByPlayers.Count > 0; }
 
         protected EventTrigger eventTrigger { get; private set; }
 
-        private static List<UIKSelectable> firstSelections = new();
+        private static List<UIKTarget> firstTargets = new();
         
         
         protected virtual void OnEnable()
         {
-            if (allowAsFirstSelection)
+            if (allowAsFirstTarget)
             {
-                firstSelections.Add(this);
+                firstTargets.Add(this);
             }
         }
 
@@ -40,24 +43,24 @@ namespace UIKit
         {
             SetHovered(false);
 
-            if (allowAsFirstSelection
-                && firstSelections.Contains(this))
+            if (allowAsFirstTarget
+                && firstTargets.Contains(this))
             {
-                firstSelections.Remove(this);
+                firstTargets.Remove(this);
             }
         }
 
         
-        public abstract UIKSelectable FindUI(Vector3 _direction);
+        public abstract UIKTarget FindUI(Vector3 _direction);
 
-        public abstract UIKSelectable FindUI(UIKInputDirection _direction);
+        public abstract UIKTarget FindUI(UIKInputDirection _direction);
 
-        public virtual bool CanPlayerSelect(UIKPlayer _player)
+        public virtual bool CanPlayerTarget(UIKPlayer _player)
         {
             return true;
         }
 
-        public virtual bool CanPlayerDeselect(UIKPlayer _player)
+        public virtual bool CanPlayerUntarget(UIKPlayer _player)
         {
             return true;
         }
@@ -95,13 +98,23 @@ namespace UIKit
                     {
                         if (_player.inputDeviceType.UsesCursor())
                         {
-                            _player.TrySelectUI(this);
+                            _player.SelectUI(this);
                         }
                     }
                 }
             }
         }
 
+        public void HandleTargeted(UIKPlayer _player)
+        {
+            OnTargeted?.Invoke(_player);
+        }
+
+        public void HandleUntargeted(UIKPlayer _player)
+        {
+            OnUntargeted?.Invoke(_player);
+        }
+        
         protected UIKInputDirection VectorToInputDirection(Vector2 _direction)
         {
             // The native Selectable.FindSelectable(Vector3 dir) will ignore explicit navigation rules,
@@ -131,13 +144,13 @@ namespace UIKit
             return direction;
         }
 
-        public static UIKSelectable GetPlayerFirstSelection(UIKPlayer _player)
+        public static UIKTarget GetPlayerFirstTarget(UIKPlayer _player)
         {
-            foreach (UIKSelectable firstUISelection in firstSelections)
+            foreach (UIKTarget firstUITarget in firstTargets)
             {
-                if (firstUISelection.CanPlayerSelect(_player))
+                if (firstUITarget.CanPlayerTarget(_player))
                 {
-                    return firstUISelection;
+                    return firstUITarget;
                 }
             }
 

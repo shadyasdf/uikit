@@ -3,17 +3,17 @@ using UnityEngine;
 
 namespace UIKit
 {
-    public class UIK3DSelectable : UIKSelectable
+    public class UIK3DTarget : UIKTarget
     {
-        public Dictionary<UIKInputDirection, UIKSelectable> explicitNavigateSelectables = new(); // Eventually we should find a better solution for 3D selectables
+        public Dictionary<UIKInputDirection, UIKTarget> explicitNavigateSelectables = new(); // Eventually we should find a better solution for 3D selectables
         
         
-        public override UIKSelectable FindUI(Vector3 _direction)
+        public override UIKTarget FindUI(Vector3 _direction)
         {
             return FindUI(VectorToInputDirection(_direction));
         }
 
-        public override UIKSelectable FindUI(UIKInputDirection _direction)
+        public override UIKTarget FindUI(UIKInputDirection _direction)
         {
             if (explicitNavigateSelectables.ContainsKey(_direction)
                 && explicitNavigateSelectables[_direction] != null)

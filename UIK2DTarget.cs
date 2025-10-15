@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace UIKit
 {
     [RequireComponent(typeof(Selectable))]
-    public class UIK2DSelectable : UIKSelectable
+    public class UIK2DTarget : UIKTarget
     {
         public Selectable selectable { get; private set; }
 
@@ -21,7 +21,7 @@ namespace UIKit
             selectable.navigation = navigation;
         }
         
-        public override UIKSelectable FindUI(Vector3 _direction)
+        public override UIKTarget FindUI(Vector3 _direction)
         {
             if (selectable == null)
             {
@@ -31,7 +31,7 @@ namespace UIKit
             return FindUI(VectorToInputDirection(_direction));
         }
 
-        public override UIKSelectable FindUI(UIKInputDirection _direction)
+        public override UIKTarget FindUI(UIKInputDirection _direction)
         {
             if (selectable == null)
             {
@@ -57,7 +57,7 @@ namespace UIKit
 
             if (foundSelectable != null)
             {
-                UIKSelectable ui = foundSelectable.GetComponent<UIKSelectable>();
+                UIKTarget ui = foundSelectable.GetComponent<UIKTarget>();
                 if (ui != null)
                 {
                     return ui;
