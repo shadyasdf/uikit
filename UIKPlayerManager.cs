@@ -57,6 +57,11 @@ namespace UIKit
             // The device used to trigger the action
             // _context.action.activeControl.device
 
+            if (!Application.isFocused)
+            {
+                return;
+            }
+            
             // For all players using the device that the input action was triggered on
             foreach (UIKPlayer player in instance.players.Where(p => p.GetInputDevices().Contains(_context.action.activeControl.device)))
             {
