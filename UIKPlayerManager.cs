@@ -19,6 +19,8 @@ namespace UIKit
         public static UIKPlayerManager instance;
 
         
+        public List<UIKPlayer> localPlayers => players.Where(p => p.GetIsLocal()).ToList();
+        
         /// <summary>
         /// Have this function return the result of UIKPlayerManager.SpawnPlayer(_playerManager, _playerIndex, _splitScreenIndex, _controlScheme, _inputDevices)
         /// </summary>
