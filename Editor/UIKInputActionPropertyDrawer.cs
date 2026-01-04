@@ -17,7 +17,7 @@ namespace UIKit
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
             List<InputAction> inputActions = new();
-            List<InputActionAsset> inputActionAssets = UIKInputActionReflector.GetAllInputActionAssets();
+            List<InputActionAsset> inputActionAssets = UIKInputActionAssetReflector.GetAllInputActionAssets();
             foreach (InputActionAsset inputActionAsset in inputActionAssets)
             {
                 foreach (InputActionMap inputActionMap in inputActionAsset.actionMaps)

@@ -13,21 +13,21 @@ namespace UIKit
         public string actionMap;
         public string action;
 
-        
+
         public bool IsValid()
         {
             return !string.IsNullOrEmpty(asset)
-                && !string.IsNullOrEmpty(actionMap)
-                && !string.IsNullOrEmpty(action);
+                   && !string.IsNullOrEmpty(actionMap)
+                   && !string.IsNullOrEmpty(action);
         }
-        
+
         public override string ToString()
         {
             if (IsValid())
             {
                 return $"({nameof(UIKInputAction)}) {asset}/{actionMap}/{action}";
             }
-            
+
             return $"({nameof(UIKInputAction)}) null";
         }
 
@@ -38,11 +38,11 @@ namespace UIKit
                 && _inputAction.actionMap.asset != null)
             {
                 return new UIKInputAction()
-                    {
-                        asset = _inputAction.actionMap.asset.name,
-                        actionMap = _inputAction.actionMap.name,
-                        action = _inputAction.name
-                    };
+                {
+                    asset = _inputAction.actionMap.asset.name,
+                    actionMap = _inputAction.actionMap.name,
+                    action = _inputAction.name
+                };
             }
 
             return new UIKInputAction();
@@ -59,34 +59,34 @@ namespace UIKit
             if (_obj is UIKInputAction uikInputAction)
             {
                 return uikInputAction.asset == asset
-                    && uikInputAction.actionMap == actionMap
-                    && uikInputAction.action == action;
+                       && uikInputAction.actionMap == actionMap
+                       && uikInputAction.action == action;
             }
-            
+
             if (_obj is InputAction inputAction)
             {
                 return inputAction.actionMap != null
-                    && inputAction.actionMap.asset != null
-                    && inputAction.actionMap.asset.name == asset
-                    && inputAction.actionMap.name == actionMap
-                    && inputAction.name == action;
+                       && inputAction.actionMap.asset
+                       && inputAction.actionMap.asset.name == asset
+                       && inputAction.actionMap.name == actionMap
+                       && inputAction.name == action;
             }
 
             return false;
         }
-        
+
         protected bool Equals(UIKInputAction _other)
         {
             return asset == _other.asset
-               && actionMap == _other.actionMap
-               && action == _other.action;
+                   && actionMap == _other.actionMap
+                   && action == _other.action;
         }
 
         public override int GetHashCode()
         {
             return HashCode.Combine(asset, actionMap, action);
         }
-        
+
         public static bool operator ==(UIKInputAction _lhs, UIKInputAction _rhs)
         {
             if (_lhs is null && _rhs is null) return true;
@@ -110,12 +110,13 @@ namespace UIKit
         {
             return !(_lhs == _rhs);
         }
-        
+
         public static bool operator ==(InputAction _lhs, UIKInputAction _rhs)
         {
             if (_lhs is null && _rhs is null) return true;
             if (_lhs is null || _rhs is null) return false;
-            return _rhs.Equals(_lhs); // InputAction doesn't handle .Equals with UIKInputAction, use UIKInputAction as lhs
+            return
+                _rhs.Equals(_lhs); // InputAction doesn't handle .Equals with UIKInputAction, use UIKInputAction as lhs
         }
 
         public static bool operator !=(InputAction _lhs, UIKInputAction _rhs)
@@ -123,30 +124,4 @@ namespace UIKit
             return !(_lhs == _rhs);
         }
     }
-    
-#if UNITY_EDITOR
-    public static class UIKInputActionReflector
-    {
-        private static List<InputActionAsset> inputActionAssets = new();
-        
-        
-        static UIKInputActionReflector()
-        {
-            // Search for all assets of type InputActionAsset
-            string[] guids = AssetDatabase.FindAssets("t:InputActionAsset");
-            foreach (string guid in guids)
-            {
-                if (AssetDatabase.LoadAssetAtPath<InputActionAsset>(AssetDatabase.GUIDToAssetPath(guid)) is InputActionAsset inputActionAsset)
-                {
-                    inputActionAssets.Add(inputActionAsset);
-                }
-            }
-        }
-
-        public static List<InputActionAsset> GetAllInputActionAssets()
-        {
-            return inputActionAssets;
-        }
-    }
-#endif // UNITY_EDITOR
 } // UIKit namespace
