@@ -10,10 +10,14 @@ namespace UIKit
         public UnityEvent<InputAction> OnInputActionTriggered { get; set; }
         
         public PlayerInput playerInput { get; set; }
+        public UIKCanvas canvas { get; set; }
         public UIKTarget targetUI { get; set; }
         public UIKInputDevice inputDeviceType { get; set; }
 
 
+        /// <summary>Run any logic that you need done before OnPlayerJoined is called</summary>
+        public void OnPrePlayerJoined();
+        
         /// <returns>Whether this player is locally controlled</returns>
         public bool GetIsLocal();
         

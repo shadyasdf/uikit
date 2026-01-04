@@ -8,10 +8,10 @@ namespace UIKit
 {
     public interface UIKPlayerManager
     {
-        public List<UIKPlayer> players { get; set; }
+        public UnityEvent<UIKPlayer> OnPlayerJoined { get; set; }
+        public UnityEvent<UIKPlayer> OnPlayerLeft { get; set; }
         
-        public static UnityEvent<UIKPlayer> OnPlayerJoined = new();
-        public static UnityEvent<UIKPlayer> OnPlayerLeft = new();
+        public List<UIKPlayer> players { get; set; }
         
         /// <summary>
         /// This must be set manually in your project's code
@@ -49,7 +49,8 @@ namespace UIKit
             playerInput.onControlsChanged += PlayerInput_OnControlsChanged;
             PlayerInput_OnControlsChanged(playerInput);
             
-            OnPlayerJoined.Invoke(player);
+            player.OnPrePlayerJoined();
+            _playerManager.OnPlayerJoined?.Invoke(player);
             
             return player;
         }
@@ -67,19 +68,19 @@ namespace UIKit
             // For all players using the device that the input action was triggered on
             foreach (UIKPlayer player in instance.players.Where(p => p.GetInputDevices().Contains(_context.action.activeControl.device)))
             {
-                // Player gets first dibs on consuming input actions
-                if (!player.OnPreInputActionTriggered(_context))
+                // Canvas gets first dibs on consuming input actions, if we have one
+                if (player.canvas)
                 {
-                    continue; // If we returned false, don't do any further input handling
-                }
-                
-                // Canvas gets second dibs on consuming input actions, if we have one
-                if (UIKCanvas.instance)
-                {
-                    if (!UIKCanvas.instance.OnPreInputActionTriggered(player, _context))
+                    if (!player.canvas.OnPreInputActionTriggered(player, _context))
                     {
                         continue; // If we returned false, don't do any further input handling
                     }
+                }
+                
+                // Player gets second dibs on consuming input actions
+                if (!player.OnPreInputActionTriggered(_context))
+                {
+                    continue; // If we returned false, don't do any further input handling
                 }
                 
                 // Broadcast the input for anyone to listen to

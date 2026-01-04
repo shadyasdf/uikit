@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace UIKit
 {
-    public class UIKWidget : MonoBehaviour
+    public class UIKWidget : UIKMonoBehaviour
     {
         public string widgetName { get; protected set; }
         

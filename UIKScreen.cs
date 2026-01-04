@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Minikit;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
 namespace UIKit
@@ -14,26 +14,28 @@ namespace UIKit
         public int layer;
     }
     
+    [Serializable]
+    public enum UIKScreenInputType
+    {
+        None,
+        UI,
+        Game
+    }
+    
     public abstract class UIKScreen : UIKWidget
     {
+        [SerializeField] public UIKScreenInputType inputType;
         [SerializeField] public UIKInputAction backInputAction;
-
+        
         protected Dictionary<UIKInputAction, List<UIKButton>> buttonByClickAction = new();
         
-        
-        protected virtual void Awake()
-        {
-        }
-
-        protected virtual void Start()
-        {
-        }
-
         
         public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
         {
             // Only try to consume input actions on the screen if we're active
-            if (active)
+            if (active
+                && GetCanvas().GetActionMapForScreenInputType(inputType) is UIKActionMap actionMap
+                && _context.action.actionMap == actionMap) // and if the input action is in our screen's input type action map
             {
                 // If this was a button press
                 if (_context.action.WasPressedThisFrame()
@@ -76,11 +78,11 @@ namespace UIKit
         
         public virtual void CloseScreen()
         {
-            if (UIKCanvas.instance)
+            if (GetCanvas())
             {
                 if (GetType().GetCustomAttribute<UIKScreenAttribute>() is UIKScreenAttribute attribute)
                 {
-                    UIKCanvas.instance.PopScreen(attribute.name);
+                    GetCanvas().PopScreen(attribute.name);
                 }
             }
         }
@@ -112,8 +114,15 @@ namespace UIKit
                 }
             }
         }
-        
-        
+
+        protected override void OnActiveChanged()
+        {
+            base.OnActiveChanged();
+
+            GetCanvas()?.RefreshTopScreen();
+        }
+
+
         private static Dictionary<string, GameObject> screenPrefabByName = new();
 
         

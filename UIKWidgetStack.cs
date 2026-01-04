@@ -1,11 +1,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace UIKit
 {
     public class UIKWidgetStack : MonoBehaviour
     {
+        [HideInInspector] public UnityEvent OnStackChanged = new();
+        
         private List<UIKWidget> widgetsInStack = new();
         
 
@@ -65,6 +68,11 @@ namespace UIKit
             return widgetsInStack;
         }
 
+        public int GetNumWidgets()
+        {
+            return widgetsInStack.Count;
+        }
+
         public List<UIKWidget> GetWidgetsOrdered()
         {
             List<UIKWidget> reversedWidgets = widgetsInStack;
@@ -101,6 +109,8 @@ namespace UIKit
             {
                 widgetsInStack[i].SetActive(i == widgetsInStack.Count - 1);
             }
+            
+            OnStackChanged.Invoke();
         }
 
         private UIKWidget TryInstantiateWidget(GameObject _widgetPrefab, Transform _parentTransform)

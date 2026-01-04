@@ -1,40 +1,129 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 namespace UIKit
 {
+    [Serializable]
+    public struct UIKScreenInputTypeActionMap
+    {
+        public UIKScreenInputType screenInputType;
+        public UIKActionMap actionMap;
+    }
+    
     [RequireComponent(typeof(Canvas))]
     public class UIKCanvas : MonoBehaviour
     {
-        private Transform screenStackPanelTransform;
-        private Dictionary<int, UIKWidgetStack> screenStackByLayer = new();
+        [HideInInspector] public UnityEvent<UIKScreen> OnTopScreenChanged = new();
+
+        [SerializeField] public List<UIKScreenInputTypeActionMap> screenInputTypeActionMaps = new();
+        [SerializeField] protected UIKInputAction leftClickInputAction;
+        [SerializeField] protected UIKInputAction uiSubmitInputAction;
+        [SerializeField] protected UIKInputAction uiMoveInputAction;
         
-        public static UIKCanvas instance { get; private set; }
+        protected Transform screenStackPanelTransform;
+        protected Dictionary<int, UIKWidgetStack> screenStackByLayer = new();
+
+        public UIKScreen topScreen { get; private set; }
         
         
         protected virtual void Awake()
         {
-            if (instance != null)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            instance = this;
             DontDestroyOnLoad(gameObject);
+            
+            // Create the screen stack panel
+            GameObject screenStackPanelGO = new("ScreenStackPanel", typeof(RectTransform));
+            screenStackPanelGO.transform.SetParent(transform);
+            screenStackPanelGO.transform.localScale = Vector3.one;
+            screenStackPanelGO.transform.localPosition = Vector3.zero;
+            
+            RectTransform screenStackPanelRectTransform = screenStackPanelGO.GetComponent<RectTransform>();
+            screenStackPanelRectTransform.anchorMin = Vector2.zero;
+            screenStackPanelRectTransform.anchorMax = Vector2.one;
+            screenStackPanelRectTransform.offsetMin = Vector2.zero;
+            screenStackPanelRectTransform.offsetMax = Vector2.zero;
+            screenStackPanelRectTransform.sizeDelta = Vector2.zero;
+            
+            screenStackPanelTransform = screenStackPanelGO.transform;
         }
 
 
+        private void ScreenStack_OnStackChanged()
+        {
+            RefreshTopScreen();
+        }
+        
+        public UIKActionMap GetActionMapForScreenInputType(UIKScreenInputType _inputType)
+        {
+            return screenInputTypeActionMaps.FirstOrDefault(o => o.screenInputType == _inputType).actionMap;
+        }
+        
+        private Coroutine CoCheckTopScreenChanged;
+        public virtual void RefreshTopScreen()
+        {
+            if (CoCheckTopScreenChanged != null)
+            {
+                StopCoroutine(CoCheckTopScreenChanged);
+            }
+            CoCheckTopScreenChanged = StartCoroutine(DoCheckTopScreenChanged());
+        }
+
+        private IEnumerator DoCheckTopScreenChanged()
+        {
+            // Wait a frame for deleted screens and child index changes to propagate
+            yield return new WaitForEndOfFrame();
+            
+            UIKScreen lastTopScreen = topScreen;
+            UIKScreen newTopScreen = GetTopScreen();
+            topScreen = newTopScreen;
+            if (lastTopScreen != topScreen)
+            {
+                OnTopScreenChanged?.Invoke(topScreen);
+                
+                if (GetActionMapForScreenInputType(topScreen.inputType) is UIKActionMap newActionMap
+                    && GetOwningPlayer() is UIKPlayer owningPlayer
+                    && owningPlayer.playerInput.currentActionMap != newActionMap)
+                {
+                    // Wait a frame for press input to be finish
+                    // Switching our current action map will re-broadcast any inputs from this frame
+                    yield return new WaitForEndOfFrame();
+                    
+                    owningPlayer.playerInput.SwitchCurrentActionMap(newActionMap.name);
+                }
+            }
+        }
+
+        public virtual Camera GetCamera()
+        {
+            return GetComponent<Canvas>()?.worldCamera;
+        }
+
+        protected virtual UIKScreen GetTopScreen()
+        {
+            foreach (UIKWidgetStack screenStack in GetScreenStacksOrdered())
+            {
+                foreach (UIKWidget screenWidget in screenStack.GetWidgetsOrdered())
+                {
+                    if (screenWidget.active
+                        && screenWidget is UIKScreen screen)
+                    {
+                        return screen;
+                    }
+                }
+            }
+
+            return null;
+        }
+        
         public virtual UIKPlayer GetOwningPlayer()
         {
-            // Base implementation just gets the first local player found, but you can override this for more complex behaviour
-            // where there might be multiple local players and multiple canvases. You just need to have the canvases keep track
-            // of their player.
-            
             if (UIKPlayerManager.instance != null)
             {
-                if (UIKPlayerManager.instance.players.FirstOrDefault(p => p.GetIsLocal()) is UIKPlayer player)
+                if (UIKPlayerManager.instance.players.FirstOrDefault(p => p.canvas == this) is UIKPlayer player)
                 {
                     return player;
                 }
@@ -65,25 +154,12 @@ namespace UIKit
 
         protected UIKWidgetStack GetScreenStack(int _layer)
         {
-            if (screenStackPanelTransform == null)
-            {
-                GameObject screenStackPanelGO = new("ScreenStackPanel", typeof(RectTransform));
-                screenStackPanelGO.transform.SetParent(transform);
-                
-                RectTransform screenStackPanelRectTransform = screenStackPanelGO.GetComponent<RectTransform>();
-                screenStackPanelRectTransform.anchorMin = Vector2.zero;
-                screenStackPanelRectTransform.anchorMax = Vector2.one;
-                screenStackPanelRectTransform.offsetMin = Vector2.zero;
-                screenStackPanelRectTransform.offsetMax = Vector2.zero;
-                screenStackPanelRectTransform.sizeDelta = Vector2.zero;
-                
-                screenStackPanelTransform = screenStackPanelGO.transform;
-            }
-            
             if (!screenStackByLayer.ContainsKey(_layer))
             {
                 GameObject screenStackGO = new(_layer.ToString(), typeof(RectTransform), typeof(UIKWidgetStack));
                 screenStackGO.transform.SetParent(screenStackPanelTransform);
+                screenStackGO.transform.localScale = Vector3.one;
+                screenStackGO.transform.localPosition = Vector3.zero;
                 
                 RectTransform screenStackRectTransform = screenStackGO.GetComponent<RectTransform>();
                 screenStackRectTransform.anchorMin = Vector2.zero;
@@ -92,14 +168,19 @@ namespace UIKit
                 screenStackRectTransform.offsetMax = Vector2.zero;
                 screenStackRectTransform.sizeDelta = Vector2.zero;
 
-                screenStackByLayer.Add(_layer, screenStackGO.GetComponent<UIKWidgetStack>());
+                if (screenStackGO.GetComponent<UIKWidgetStack>() is UIKWidgetStack stack)
+                {
+                    screenStackByLayer.Add(_layer, stack);
+                    
+                    stack.OnStackChanged.AddListener(ScreenStack_OnStackChanged);
+                }
                 
                 UpdateScreenStacks();
             }
             
             return screenStackByLayer[_layer];
         }
-
+        
         private void UpdateScreenStacks()
         {
             foreach (UIKWidgetStack screenStack in GetScreenStacksOrdered())
@@ -110,6 +191,33 @@ namespace UIKit
 
         public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
         {
+            if (GetOwningPlayer() is UIKPlayer player)
+            {
+                // Consume UI inputs before broadcasting them
+                if (_context.action == leftClickInputAction
+                    || _context.action == uiSubmitInputAction)
+                {
+                    if (_context.action.WasPressedThisFrame()
+                        && _context.action.triggered)
+                    {
+                        if (player.TrySubmitUI(player.GetTargetUI()))
+                        {
+                            return false;
+                        }
+                    }
+                }
+                else if (_context.action == uiMoveInputAction)
+                {
+                    if (_context.action.WasPerformedThisFrame())
+                    {
+                        if (player.TryNavigateUIByDirection(_context.ReadValue<Vector2>()))
+                        {
+                            return false;
+                        }
+                    }
+                }
+            }
+            
             // If any of the screens consume the input action, then we return false
             foreach (UIKWidgetStack screenStack in GetScreenStacksOrdered())
             {
