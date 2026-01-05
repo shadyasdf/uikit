@@ -26,7 +26,7 @@ namespace UIKit
         [SerializeField] protected UIKInputAction uiMoveInputAction;
         
         protected Transform screenStackPanelTransform;
-        protected Dictionary<int, UIKWidgetStack> screenStackByLayer = new();
+        protected Dictionary<int, UIKScreenStack> screenStackByLayer = new();
 
         public UIKScreen topScreen { get; private set; }
         
@@ -104,7 +104,7 @@ namespace UIKit
 
         protected virtual UIKScreen GetTopScreen()
         {
-            foreach (UIKWidgetStack screenStack in GetScreenStacksOrdered())
+            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered())
             {
                 foreach (UIKWidget screenWidget in screenStack.GetWidgetsOrdered())
                 {
@@ -135,7 +135,7 @@ namespace UIKit
         public void PushScreen(string _name)
         {
             if (UIKScreen.GetScreenAttribute(_name) is UIKScreenAttribute screenAttribute
-                && GetScreenStack(screenAttribute.layer) is UIKWidgetStack screenStack
+                && GetScreenStack(screenAttribute.layer) is UIKScreenStack screenStack
                 && UIKScreen.GetScreenPrefab(_name) is GameObject screenPrefab)
             {
                 screenStack.PushToStack(screenAttribute.name, screenPrefab);
@@ -145,18 +145,18 @@ namespace UIKit
         public void PopScreen(string _name)
         {
             if (UIKScreen.GetScreenAttribute(_name) is UIKScreenAttribute screenAttribute
-                && GetScreenStack(screenAttribute.layer) is UIKWidgetStack screenStack
+                && GetScreenStack(screenAttribute.layer) is UIKScreenStack screenStack
                 && screenStack.GetWidgetByName(_name) is UIKWidget screenWidget)
             {
                 screenStack.PopFromStack(screenWidget);
             }
         }
 
-        public UIKWidgetStack GetScreenStack(int _layer)
+        public UIKScreenStack GetScreenStack(int _layer)
         {
             if (!screenStackByLayer.ContainsKey(_layer))
             {
-                GameObject screenStackGO = new(_layer.ToString(), typeof(RectTransform), typeof(UIKWidgetStack));
+                GameObject screenStackGO = new(_layer.ToString(), typeof(RectTransform), typeof(UIKScreenStack));
                 screenStackGO.transform.SetParent(screenStackPanelTransform);
                 screenStackGO.transform.localScale = Vector3.one;
                 screenStackGO.transform.localPosition = Vector3.zero;
@@ -168,11 +168,11 @@ namespace UIKit
                 screenStackRectTransform.offsetMax = Vector2.zero;
                 screenStackRectTransform.sizeDelta = Vector2.zero;
 
-                if (screenStackGO.GetComponent<UIKWidgetStack>() is UIKWidgetStack stack)
+                if (screenStackGO.GetComponent<UIKScreenStack>() is UIKScreenStack screenStack)
                 {
-                    screenStackByLayer.Add(_layer, stack);
+                    screenStackByLayer.Add(_layer, screenStack);
                     
-                    stack.OnStackChanged.AddListener(ScreenStack_OnStackChanged);
+                    screenStack.OnStackChanged.AddListener(ScreenStack_OnStackChanged);
                 }
                 
                 UpdateScreenStacks();
@@ -183,7 +183,7 @@ namespace UIKit
         
         private void UpdateScreenStacks()
         {
-            foreach (UIKWidgetStack screenStack in GetScreenStacksOrdered())
+            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered())
             {
                 screenStack.transform.SetAsFirstSibling();
             }
@@ -219,7 +219,7 @@ namespace UIKit
             }
             
             // If any of the screens consume the input action, then we return false
-            foreach (UIKWidgetStack screenStack in GetScreenStacksOrdered())
+            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered())
             {
                 foreach (UIKScreen screen in screenStack.GetWidgetsOrdered().Cast<UIKScreen>())
                 {
@@ -233,7 +233,7 @@ namespace UIKit
             return true;
         }
 
-        private IEnumerable<UIKWidgetStack> GetScreenStacksOrdered()
+        private IEnumerable<UIKScreenStack> GetScreenStacksOrdered()
         {
             return screenStackByLayer.OrderByDescending(p => p.Key).Select(p => p.Value);
         }

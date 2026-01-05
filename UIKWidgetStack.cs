@@ -9,10 +9,10 @@ namespace UIKit
     {
         [HideInInspector] public UnityEvent OnStackChanged = new();
         
-        private List<UIKWidget> widgetsInStack = new();
+        protected List<UIKWidget> widgetsInStack = new();
         
 
-        public void PushToStack(string _widgetName, GameObject _widgetPrefab)
+        public virtual void PushToStack(string _widgetName, GameObject _widgetPrefab)
         {
             if (TryInstantiateWidget(_widgetPrefab, transform) is UIKWidget widget)
             {
@@ -22,7 +22,7 @@ namespace UIKit
             UpdateWidgetsInStack();
         }
         
-        public void PopFromStack(UIKWidget _widget)
+        public virtual void PopFromStack(UIKWidget _widget)
         {
             foreach (Transform child in transform)
             {
@@ -37,7 +37,7 @@ namespace UIKit
             UpdateWidgetsInStack();
         }
 
-        public void PopStack()
+        public virtual void PopStack()
         {
             if (transform.childCount > 0)
             {
@@ -50,7 +50,7 @@ namespace UIKit
             UpdateWidgetsInStack();
         }
 
-        public void ClearStack()
+        public virtual void ClearStack()
         {
             foreach (Transform child in transform)
             {
@@ -85,7 +85,7 @@ namespace UIKit
             return widgetsInStack.FirstOrDefault(w => w.widgetName == _widgetName);
         }
 
-        private void UpdateWidgetsInStack()
+        protected virtual void UpdateWidgetsInStack()
         {
             // Re-determine the widgets in the stack by checking our children
             widgetsInStack.Clear();
@@ -113,7 +113,7 @@ namespace UIKit
             OnStackChanged.Invoke();
         }
 
-        private UIKWidget TryInstantiateWidget(GameObject _widgetPrefab, Transform _parentTransform)
+        protected virtual UIKWidget TryInstantiateWidget(GameObject _widgetPrefab, Transform _parentTransform)
         {
             if (_widgetPrefab == null)
             {

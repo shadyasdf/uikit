@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using Minikit;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -21,10 +20,19 @@ namespace UIKit
         UI,
         Game
     }
+
+    [Serializable]
+    public enum UIKScreenLowerScreenVisibility
+    {
+        ShowAll,
+        HideAll
+    }
     
+    [RequireComponent(typeof(CanvasGroup))]
     public abstract class UIKScreen : UIKWidget
     {
         [SerializeField] public UIKScreenInputType inputType;
+        [SerializeField] public UIKScreenLowerScreenVisibility lowerScreenVisibility;
         [SerializeField] public UIKInputAction backInputAction;
         
         protected Dictionary<UIKInputAction, List<UIKButton>> buttonByClickAction = new();
@@ -113,6 +121,11 @@ namespace UIKit
                     boundButtons.Remove(_button);
                 }
             }
+        }
+
+        public CanvasGroup GetCanvasGroup()
+        {
+            return GetComponent<CanvasGroup>();
         }
 
         protected override void OnActiveChanged()
