@@ -152,7 +152,7 @@ namespace UIKit
             }
         }
 
-        protected UIKWidgetStack GetScreenStack(int _layer)
+        public UIKWidgetStack GetScreenStack(int _layer)
         {
             if (!screenStackByLayer.ContainsKey(_layer))
             {
