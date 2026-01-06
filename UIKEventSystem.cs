@@ -65,7 +65,7 @@ namespace UIKit
             return inputModule;
         }
 
-        public void ExecuteUIEvent<T>(UIKPlayer _player, UIKTarget _target, ExecuteEvents.EventFunction<T> _eventFunction, string _specialInputKey = null) where T : IEventSystemHandler
+        public void ExecuteUIEvent<T>(UIKPlayer _player, UIKTarget _target, ExecuteEvents.EventFunction<T> _eventFunction) where T : IEventSystemHandler
         {
             if (_player == null
                 || !_target)
@@ -74,7 +74,7 @@ namespace UIKit
                 return;
             }
 
-            UIKEventData uiEventData = new UIKEventData(_player, _target, this, _specialInputKey);
+            UIKEventData uiEventData = new(_player, _target, this);
             ExecuteEvents.Execute(_target.gameObject, uiEventData, _eventFunction);
         }
     }
