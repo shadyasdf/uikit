@@ -33,38 +33,7 @@ namespace UIKit
 
         public override UIKTarget FindUI(UIKInputDirection _direction)
         {
-            if (selectable == null)
-            {
-                return null;
-            }
-
-            Selectable foundSelectable = null;
-            switch (_direction)
-            {
-                case UIKInputDirection.Left:
-                    foundSelectable = selectable.FindSelectableOnLeft();
-                    break;
-                case UIKInputDirection.Right:
-                    foundSelectable = selectable.FindSelectableOnRight();
-                    break;
-                case UIKInputDirection.Up:
-                    foundSelectable = selectable.FindSelectableOnUp();
-                    break;
-                case UIKInputDirection.Down:
-                    foundSelectable = selectable.FindSelectableOnDown();
-                    break;
-            }
-
-            if (foundSelectable != null)
-            {
-                UIKTarget ui = foundSelectable.GetComponent<UIKTarget>();
-                if (ui != null)
-                {
-                    return ui;
-                }
-            }
-
-            return null;
+            return ((UIKTargetFinder)this).FindTargetFromSelectable(selectable, _direction);
         }
     }
 } // UIKit namespace

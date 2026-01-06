@@ -79,7 +79,14 @@ namespace UIKit
         {
             if (!_player.targetUI)
             {
-                return _player.SelectUI(UIKTarget.GetPlayerFirstTarget(_player));
+                if (UIKTarget.GetPlayerFirstTarget(_player) is UIKTarget target)
+                {
+                    return _player.SelectUI(target);
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             UIKTarget foundUI = _player.targetUI.FindUI(_direction);

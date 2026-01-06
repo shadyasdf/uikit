@@ -1,9 +1,7 @@
-using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
-using UnityEngine.UI;
 
 namespace UIKit
 {
@@ -15,7 +13,7 @@ namespace UIKit
         Left
     }
 
-    public abstract class UIKTarget : UIKMonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public abstract class UIKTarget : UIKMonoBehaviour, IPointerEnterHandler, IPointerExitHandler, UIKTargetFinder
     {
         [SerializeField] public UnityEvent<UIKPlayer> OnTargeted = new();
         [SerializeField] public UnityEvent<UIKPlayer> OnUntargeted = new();
