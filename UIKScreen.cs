@@ -135,6 +135,61 @@ namespace UIKit
             GetCanvas()?.RefreshTopScreen();
         }
 
+        protected override void OnActivate()
+        {
+            base.OnActivate();
+
+            if (GetOwningPlayer() is UIKPlayer player)
+            {
+                foreach (UIKTarget target in GetComponentsInChildren<UIKTarget>())
+                {
+                    if (target.allowAsFirstTarget)
+                    {
+                        player.canvas?.AddFirstTarget(target);
+                    }
+                }
+
+                // Attempt to make a new first selection on this screen automatically if we don't use MKB
+                if (!player.targetUI
+                    && player.canvas
+                    && player.inputDeviceType.UsesCursor())
+                {
+                    foreach (UIKTarget target in player.canvas.GetFirstTargets())
+                    {
+                        if (target.CanPlayerTarget(player))
+                        {
+                            if (player.SelectUI(target))
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        protected override void OnDeactivate()
+        {
+            base.OnDeactivate();
+
+            if (GetOwningPlayer() is UIKPlayer player)
+            {
+                foreach (UIKTarget target in GetComponentsInChildren<UIKTarget>())
+                {
+                    if (target.allowAsFirstTarget)
+                    {
+                        player.canvas?.RemoveFirstTarget(target);
+                    }
+
+                    // Remove our current selection on this screen
+                    if (player.targetUI == target)
+                    {
+                        player.DeselectUI();
+                    }
+                }
+            }
+        }
+
 
         private static Dictionary<string, GameObject> screenPrefabByName = new();
 

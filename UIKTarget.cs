@@ -18,53 +18,54 @@ namespace UIKit
         [SerializeField] public UnityEvent<UIKPlayer> OnTargeted = new();
         [SerializeField] public UnityEvent<UIKPlayer> OnUntargeted = new();
         
-        [SerializeField] protected bool allowAsFirstTarget = false; // Not intended to be changed during runtime
+        [SerializeField] public bool allowAsFirstTarget; // Not intended to be changed during runtime
 
         [HideInInspector] public List<UIKPlayer> targetedByPlayers = new();
         public bool hovered { get; private set; } // Hovered is only used for the KeyboardAndMouse InputDeviceType
-        public bool targeted { get => targetedByPlayers.Count > 0; }
-
-        protected EventTrigger eventTrigger { get; private set; }
-
-        private static List<UIKTarget> firstTargets = new();
-        
-        
-        protected virtual void OnEnable()
-        {
-            if (allowAsFirstTarget)
-            {
-                firstTargets.Add(this);
-            }
-        }
-
-        protected virtual void OnDisable()
-        {
-            SetHovered(false);
-
-            if (allowAsFirstTarget
-                && firstTargets.Contains(this))
-            {
-                firstTargets.Remove(this);
-            }
-        }
 
         
         public abstract UIKTarget FindUI(Vector3 _direction);
 
         public abstract UIKTarget FindUI(UIKInputDirection _direction);
 
+        public virtual bool CanPlayerInteract(UIKPlayer _player)
+        {
+            if (GetOwningPlayer() is UIKPlayer owningPlayer // If we have a valid owning player
+                && owningPlayer != _player) // and it's not this player
+            {
+                return false; // Then don't let them interact
+            }
+
+            return true;
+        }
+        
         public virtual bool CanPlayerTarget(UIKPlayer _player)
         {
+            if (!CanPlayerInteract(_player))
+            {
+                return false;
+            }
+            
             return true;
         }
 
         public virtual bool CanPlayerUntarget(UIKPlayer _player)
         {
+            if (!CanPlayerInteract(_player))
+            {
+                return false;
+            }
+            
             return true;
         }
 
         public virtual bool CanPlayerSubmit(UIKPlayer _player)
         {
+            if (!CanPlayerInteract(_player))
+            {
+                return false;
+            }
+            
             return true;
         }
 
@@ -140,19 +141,6 @@ namespace UIKit
             }
 
             return direction;
-        }
-
-        public static UIKTarget GetPlayerFirstTarget(UIKPlayer _player)
-        {
-            foreach (UIKTarget firstUITarget in firstTargets)
-            {
-                if (firstUITarget.CanPlayerTarget(_player))
-                {
-                    return firstUITarget;
-                }
-            }
-
-            return null;
         }
     }
 } // UIKit namespace
