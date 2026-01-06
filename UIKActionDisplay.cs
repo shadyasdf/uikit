@@ -26,8 +26,7 @@ namespace UIKit
 
         protected virtual void UpdateDisplay()
         {
-            if (inputAction == null
-                || !inputAction.IsValid())
+            if (!inputAction.IsValid())
             {
                 UpdateDisplayWithInvalid();
                 return;

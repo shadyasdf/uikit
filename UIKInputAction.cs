@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -9,7 +10,7 @@ namespace UIKit
     [Serializable]
     public class UIKInputAction
     {
-        public string asset;
+        public string asset; // Don't use for comparison, additional local player inputs append "(Clone)" to the end of the asset name
         public string actionMap;
         public string action;
 
@@ -31,7 +32,7 @@ namespace UIKit
             return $"({nameof(UIKInputAction)}) null";
         }
 
-        public static implicit operator UIKInputAction(InputAction _inputAction)
+        public static explicit operator UIKInputAction(InputAction _inputAction)
         {
             if (_inputAction != null
                 && _inputAction.actionMap != null
@@ -58,16 +59,13 @@ namespace UIKit
 
             if (_obj is UIKInputAction uikInputAction)
             {
-                return uikInputAction.asset == asset
-                       && uikInputAction.actionMap == actionMap
+                return uikInputAction.actionMap == actionMap
                        && uikInputAction.action == action;
             }
 
             if (_obj is InputAction inputAction)
             {
                 return inputAction.actionMap != null
-                       && inputAction.actionMap.asset
-                       && inputAction.actionMap.asset.name == asset
                        && inputAction.actionMap.name == actionMap
                        && inputAction.name == action;
             }
@@ -77,14 +75,13 @@ namespace UIKit
 
         protected bool Equals(UIKInputAction _other)
         {
-            return asset == _other.asset
-                   && actionMap == _other.actionMap
+            return actionMap == _other.actionMap
                    && action == _other.action;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(asset, actionMap, action);
+            return HashCode.Combine(actionMap, action);
         }
 
         public static bool operator ==(UIKInputAction _lhs, UIKInputAction _rhs)
@@ -103,7 +100,7 @@ namespace UIKit
         {
             if (_lhs is null && _rhs is null) return true;
             if (_lhs is null || _rhs is null) return false;
-            return _lhs.Equals(_rhs); // UIKInputAction does handle .Equals with InputAction, use UIKInputAction as lhs
+            return _lhs.Equals(_rhs); // UIKInputAction doesn't handle .Equals with InputAction, use UIKInputAction as lhs
         }
 
         public static bool operator !=(UIKInputAction _lhs, InputAction _rhs)
@@ -115,8 +112,7 @@ namespace UIKit
         {
             if (_lhs is null && _rhs is null) return true;
             if (_lhs is null || _rhs is null) return false;
-            return
-                _rhs.Equals(_lhs); // InputAction doesn't handle .Equals with UIKInputAction, use UIKInputAction as lhs
+            return _rhs.Equals(_lhs); // InputAction doesn't handle .Equals with UIKInputAction, use UIKInputAction as lhs
         }
 
         public static bool operator !=(InputAction _lhs, UIKInputAction _rhs)

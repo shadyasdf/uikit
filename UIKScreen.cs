@@ -58,7 +58,7 @@ namespace UIKit
                     }
                     
                     // If any of our registered buttons wants to consume this input action, handle it with a click event
-                    if (buttonByClickAction.TryGetValue(_context.action, out List<UIKButton> buttons))
+                    if (buttonByClickAction.TryGetValue((UIKInputAction)_context.action, out List<UIKButton> buttons))
                     {
                         foreach (UIKButton button in buttons)
                         {
