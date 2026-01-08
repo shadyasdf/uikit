@@ -103,6 +103,17 @@ namespace UIKit
                     widgetsInStack.Add(widget);
                 }
             }
+            
+            // Deactivate widgets that we're not tracking that are pending destruction
+            foreach (Transform child in transform)
+            {
+                if (child?.gameObject
+                    && child.gameObject.IsPendingDestroy()
+                    && child.GetComponent<UIKWidget>() is UIKWidget widget)
+                {
+                    widget.Deactivate();
+                }
+            }
 
             // Deactivate all widgets in the stack and activate the topmost one
             for (int i = 0; i < widgetsInStack.Count; i++)

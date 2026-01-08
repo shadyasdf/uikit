@@ -18,8 +18,6 @@ namespace UIKit
         [SerializeField] public UnityEvent<UIKPlayer> OnTargeted = new();
         [SerializeField] public UnityEvent<UIKPlayer> OnUntargeted = new();
         
-        [SerializeField] public bool allowAsFirstTarget; // Not intended to be changed during runtime
-
         [HideInInspector] public List<UIKPlayer> targetedByPlayers = new();
         public bool hovered { get; private set; } // Hovered is only used for the KeyboardAndMouse InputDeviceType
 

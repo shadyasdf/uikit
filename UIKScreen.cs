@@ -34,8 +34,45 @@ namespace UIKit
         [SerializeField] public UIKScreenInputType inputType;
         [SerializeField] public UIKScreenLowerScreenVisibility lowerScreenVisibility;
         [SerializeField] public UIKInputAction backInputAction;
+        [SerializeField] public UIKTarget firstTarget;
         
         protected Dictionary<UIKInputAction, List<UIKButton>> buttonByClickAction = new();
+
+
+        protected override void OnActivate()
+        {
+            base.OnActivate();
+            
+            // Attempt to make a new first selection on this screen automatically 
+            if (GetOwningPlayer() is UIKPlayer player
+                && !player.targetUI
+                && !player.inputDeviceType.UsesCursor()) // if we don't use MKB
+            {
+                if (firstTarget
+                    && firstTarget.CanPlayerTarget(player))
+                {
+                    player.SelectUI(firstTarget);
+                }
+            }
+        }
+
+        protected override void OnDeactivate()
+        {
+            base.OnDeactivate();
+
+            if (GetOwningPlayer() is UIKPlayer player)
+            {
+                foreach (UIKTarget target in GetComponentsInChildren<UIKTarget>())
+                {
+                    // Remove our current selection on this screen
+                    if (player.targetUI == target)
+                    {
+                        player.DeselectUI();
+                        break;
+                    }
+                }
+            }
+        }
         
         
         public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
@@ -126,68 +163,6 @@ namespace UIKit
         public CanvasGroup GetCanvasGroup()
         {
             return GetComponent<CanvasGroup>();
-        }
-
-        protected override void OnActiveChanged()
-        {
-            base.OnActiveChanged();
-
-            GetCanvas()?.RefreshTopScreen();
-        }
-
-        protected override void OnActivate()
-        {
-            base.OnActivate();
-
-            if (GetOwningPlayer() is UIKPlayer player)
-            {
-                foreach (UIKTarget target in GetComponentsInChildren<UIKTarget>())
-                {
-                    if (target.allowAsFirstTarget)
-                    {
-                        player.canvas?.AddFirstTarget(target);
-                    }
-                }
-
-                // Attempt to make a new first selection on this screen automatically if we don't use MKB
-                if (!player.targetUI
-                    && player.canvas
-                    && player.inputDeviceType.UsesCursor())
-                {
-                    foreach (UIKTarget target in player.canvas.GetFirstTargets())
-                    {
-                        if (target.CanPlayerTarget(player))
-                        {
-                            if (player.SelectUI(target))
-                            {
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        protected override void OnDeactivate()
-        {
-            base.OnDeactivate();
-
-            if (GetOwningPlayer() is UIKPlayer player)
-            {
-                foreach (UIKTarget target in GetComponentsInChildren<UIKTarget>())
-                {
-                    if (target.allowAsFirstTarget)
-                    {
-                        player.canvas?.RemoveFirstTarget(target);
-                    }
-
-                    // Remove our current selection on this screen
-                    if (player.targetUI == target)
-                    {
-                        player.DeselectUI();
-                    }
-                }
-            }
         }
 
 

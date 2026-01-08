@@ -29,7 +29,6 @@ namespace UIKit
         protected Dictionary<int, UIKScreenStack> screenStackByLayer = new();
 
         public UIKScreen topScreen { get; private set; }
-        private List<UIKTarget> firstTargets = new();
         
         
         protected virtual void Awake()
@@ -85,15 +84,18 @@ namespace UIKit
             {
                 OnTopScreenChanged?.Invoke(topScreen);
                 
-                if (GetActionMapForScreenInputType(topScreen.inputType) is UIKActionMap newActionMap
-                    && GetOwningPlayer() is UIKPlayer owningPlayer
-                    && owningPlayer.playerInput.currentActionMap != newActionMap)
+                if (topScreen
+                    && GetOwningPlayer() is UIKPlayer player)
                 {
-                    // Wait a frame for press input to be finish
-                    // Switching our current action map will re-broadcast any inputs from this frame
-                    yield return new WaitForEndOfFrame();
+                    if (GetActionMapForScreenInputType(topScreen.inputType) is UIKActionMap newActionMap
+                        && player.playerInput.currentActionMap != newActionMap)
+                    {
+                        // Wait a frame for press input to be finish
+                        // Switching our current action map will re-broadcast any inputs from this frame
+                        yield return new WaitForEndOfFrame();
                     
-                    owningPlayer.playerInput.SwitchCurrentActionMap(newActionMap.name);
+                        player.playerInput.SwitchCurrentActionMap(newActionMap.name);
+                    }
                 }
             }
         }
@@ -237,32 +239,6 @@ namespace UIKit
         private IEnumerable<UIKScreenStack> GetScreenStacksOrdered()
         {
             return screenStackByLayer.OrderByDescending(p => p.Key).Select(p => p.Value);
-        }
-
-        public List<UIKTarget> GetFirstTargets()
-        {
-            for (int i = firstTargets.Count - 1; i >= 0; i--)
-            {
-                if (firstTargets[i] == null)
-                {
-                    firstTargets.RemoveAt(i);
-                }
-            }
-
-            return firstTargets;
-        }
-        
-        public void AddFirstTarget(UIKTarget _target)
-        {
-            if (!firstTargets.Contains(_target))
-            {
-                firstTargets.Add(_target);
-            }
-        }
-
-        public void RemoveFirstTarget(UIKTarget _target)
-        {
-            firstTargets.Remove(_target);
         }
     }
 } // UIKit namespace
