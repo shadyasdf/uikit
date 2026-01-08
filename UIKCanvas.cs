@@ -87,6 +87,21 @@ namespace UIKit
                 if (topScreen
                     && GetOwningPlayer() is UIKPlayer player)
                 {
+                    // Determine if we should lock/unlock the cursor on this screen
+                    if (player.inputDeviceType.UsesCursor())
+                    {
+                        if (topScreen.inputType == UIKScreenInputType.Game)
+                        {
+                            Cursor.lockState = CursorLockMode.Locked;
+                            Cursor.visible = false;
+                        }
+                        else
+                        {
+                            Cursor.lockState = CursorLockMode.None;
+                            Cursor.visible = true;
+                        }
+                    }
+                    
                     if (GetActionMapForScreenInputType(topScreen.inputType) is string actionMapName
                         && player.playerInput.currentActionMap.name != actionMapName)
                     {
@@ -96,7 +111,7 @@ namespace UIKit
                     
                         player.playerInput.SwitchCurrentActionMap(actionMapName);
                     }
-                }
+                }  
             }
         }
 
