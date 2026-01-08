@@ -57,9 +57,9 @@ namespace UIKit
             RefreshTopScreen();
         }
         
-        public UIKActionMap GetActionMapForScreenInputType(UIKScreenInputType _inputType)
+        public string GetActionMapForScreenInputType(UIKScreenInputType _inputType)
         {
-            return screenInputTypeActionMaps.FirstOrDefault(o => o.screenInputType == _inputType).actionMap;
+            return screenInputTypeActionMaps.FirstOrDefault(o => o.screenInputType == _inputType).actionMap.name;
         }
         
         private Coroutine CoCheckTopScreenChanged;
@@ -87,14 +87,14 @@ namespace UIKit
                 if (topScreen
                     && GetOwningPlayer() is UIKPlayer player)
                 {
-                    if (GetActionMapForScreenInputType(topScreen.inputType) is UIKActionMap newActionMap
-                        && player.playerInput.currentActionMap != newActionMap)
+                    if (GetActionMapForScreenInputType(topScreen.inputType) is string actionMapName
+                        && player.playerInput.currentActionMap.name != actionMapName)
                     {
                         // Wait a frame for press input to be finish
                         // Switching our current action map will re-broadcast any inputs from this frame
                         yield return new WaitForEndOfFrame();
                     
-                        player.playerInput.SwitchCurrentActionMap(newActionMap.name);
+                        player.playerInput.SwitchCurrentActionMap(actionMapName);
                     }
                 }
             }

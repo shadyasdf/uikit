@@ -79,8 +79,8 @@ namespace UIKit
         {
             // Only try to consume input actions on the screen if we're active
             if (active
-                && GetCanvas().GetActionMapForScreenInputType(inputType) is UIKActionMap actionMap
-                && _context.action.actionMap == actionMap) // and if the input action is in our screen's input type action map
+                && GetCanvas().GetActionMapForScreenInputType(inputType) is string actionMapName
+                && _context.action.actionMap.name == actionMapName) // and if the input action is in our screen's input type action map
             {
                 // If this was a button press
                 if (_context.action.WasPressedThisFrame()
