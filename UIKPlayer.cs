@@ -17,6 +17,9 @@ namespace UIKit
 
         /// <summary>Run any logic that you need done before OnPlayerJoined is called</summary>
         public void OnPrePlayerJoined();
+
+        /// <summary>Run any logic that you need done before OnPlayerLeft is called</summary>
+        public void OnPrePlayerLeft();
         
         /// <returns>Whether this player is locally controlled</returns>
         public bool GetIsLocal();
