@@ -13,13 +13,17 @@ namespace UIKit
         
         public List<UIKPlayer> players { get; set; }
         
-        /// <summary>This must be set manually in your project's code</summary>
+        /// <summary>
+        /// This must be set manually in your project's code
+        /// </summary>
         public static UIKPlayerManager instance;
 
         
         public List<UIKPlayer> localPlayers => players.Where(p => p.GetIsLocal()).ToList();
         
-        /// <summary>Have this function return the result of UIKPlayerManager.JoinPlayer(_playerManager, _playerIndex, _splitScreenIndex, _controlScheme, _inputDevices)</summary>
+        /// <summary>
+        /// Have this function return the result of UIKPlayerManager.JoinPlayer(_playerManager, _playerIndex, _splitScreenIndex, _controlScheme, _inputDevices)
+        /// </summary>
         public UIKPlayer JoinPlayer(int _playerIndex = -1, int _splitScreenIndex = -1, string _controlScheme = null, InputDevice[] _inputDevices = null);
 
         public static UIKPlayer JoinPlayer(UIKPlayerManager _playerManager, int _playerIndex, int _splitScreenIndex, string _controlScheme, InputDevice[] _inputDevices = null)
@@ -51,7 +55,9 @@ namespace UIKit
             return player;
         }
 
-        /// <summary>Have this function call UIKPlayerManager.LeavePlayer(_playerManager, _player)</summary>
+        /// <summary>
+        /// Have this function call UIKPlayerManager.LeavePlayer(_playerManager, _player)
+        /// </summary>
         public void LeavePlayer(UIKPlayer _player);
 
         public static void LeavePlayer(UIKPlayerManager _playerManager, UIKPlayer _player)
