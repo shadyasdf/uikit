@@ -1,8 +1,9 @@
+using UnityEngine;
 using UnityEngine.UI;
 
 namespace UIKit
 {
-    public interface UIKTargetFinder
+    public interface UIK2DTargetFromSelectable
     {
         public UIKTarget FindTargetFromSelectable(Selectable _selectable, UIKInputDirection _direction)
         {
@@ -30,14 +31,14 @@ namespace UIKit
 
             if (foundSelectable != null)
             {
-                if (foundSelectable.GetComponent<UIKTarget>() is UIKTarget target)
-                {
-                    return target;
-                }
-
                 if (foundSelectable.GetComponent<UIKTargetGroup>() is UIKTargetGroup targetGroup)
                 {
                     return targetGroup.GetInsideTargetFromDirection(_direction);
+                }
+
+                if (foundSelectable.GetComponent<UIKTarget>() is UIKTarget target)
+                {
+                    return target;
                 }
             }
             else

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace UIKit
 {
     [RequireComponent(typeof(Selectable))]
-    public abstract class UIK2DTargetGroup : UIKTargetGroup
+    public abstract class UIK2DTargetGroup : UIKTargetGroup, UIK2DTargetFromSelectable
     {
         protected override void OnPreConstruct(bool _isOnValidate)
         {
@@ -27,7 +27,7 @@ namespace UIKit
         {
             if (GetComponent<Selectable>() is Selectable selectable)
             {
-                return ((UIKTargetFinder)this).FindTargetFromSelectable(selectable, _direction);
+                return ((UIK2DTargetFromSelectable)this).FindTargetFromSelectable(selectable, _direction);
             }
             
             return null;

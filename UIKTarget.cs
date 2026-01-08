@@ -13,7 +13,7 @@ namespace UIKit
         Left
     }
 
-    public abstract class UIKTarget : UIKMonoBehaviour, IPointerEnterHandler, IPointerExitHandler, UIKTargetFinder
+    public abstract class UIKTarget : UIKMonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] public UnityEvent<UIKPlayer> OnTargeted = new();
         [SerializeField] public UnityEvent<UIKPlayer> OnUntargeted = new();

@@ -4,7 +4,7 @@ using UnityEngine.UI;
 namespace UIKit
 {
     [RequireComponent(typeof(Selectable))]
-    public class UIK2DTarget : UIKTarget
+    public class UIK2DTarget : UIKTarget, UIK2DTargetFromSelectable
     {
         public Selectable selectable { get; private set; }
 
@@ -33,7 +33,7 @@ namespace UIKit
 
         public override UIKTarget FindUI(UIKInputDirection _direction)
         {
-            return ((UIKTargetFinder)this).FindTargetFromSelectable(selectable, _direction);
+            return ((UIK2DTargetFromSelectable)this).FindTargetFromSelectable(selectable, _direction);
         }
     }
 } // UIKit namespace
