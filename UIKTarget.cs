@@ -8,12 +8,12 @@ namespace UIKit
     public enum UIKInputDirection
     {
         Up,
-        Right,
         Down,
-        Left
+        Left,
+        Right
     }
 
-    public abstract class UIKTarget : UIKMonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public abstract class UIKTarget : UIKElement, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] public UnityEvent<UIKPlayer> OnTargeted = new();
         [SerializeField] public UnityEvent<UIKPlayer> OnUntargeted = new();
@@ -21,11 +21,12 @@ namespace UIKit
         [HideInInspector] public List<UIKPlayer> targetedByPlayers = new();
         public bool hovered { get; private set; } // Hovered is only used for the KeyboardAndMouse InputDeviceType
 
+
+        public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
+        {
+            return this;
+        }
         
-        public abstract UIKTarget FindUI(Vector3 _direction);
-
-        public abstract UIKTarget FindUI(UIKInputDirection _direction);
-
         public virtual bool CanPlayerInteract(UIKPlayer _player)
         {
             if (GetOwningPlayer() is UIKPlayer owningPlayer // If we have a valid owning player

@@ -34,10 +34,28 @@ namespace UIKit
         [SerializeField] public UIKScreenInputType inputType;
         [SerializeField] public UIKScreenLowerScreenVisibility lowerScreenVisibility;
         [SerializeField] public UIKInputAction backInputAction;
-        [SerializeField] public UIKTarget firstTarget;
+        [SerializeField] public UIKElement firstTarget;
         
         protected Dictionary<UIKInputAction, List<UIKButton>> buttonByClickAction = new();
 
+
+        protected override void OnPreConstruct(bool _isOnValidate)
+        {
+            base.OnPreConstruct(_isOnValidate);
+
+            if (firstTarget == this)
+            {
+                Debug.LogError("First target cannot be self (infinite recursion)");
+                firstTarget = null;
+            }
+
+            if (_isOnValidate
+                && (navigation.up || navigation.down || navigation.left || navigation.right))
+            {
+                Debug.LogError("Screens do not use the navigation property");
+                navigation = new UIKNavigation();
+            }
+        }
 
         protected override void OnActivate()
         {
@@ -48,10 +66,10 @@ namespace UIKit
                 && !player.targetUI
                 && !player.inputDeviceType.UsesCursor()) // if we don't use MKB
             {
-                if (firstTarget
-                    && firstTarget.CanPlayerTarget(player))
+                if (firstTarget?.GetInnerTarget(UIKInputDirection.Down) is UIKTarget target
+                    && target.CanPlayerTarget(player))
                 {
-                    player.SelectUI(firstTarget);
+                    player.SelectUI(target);
                 }
             }
         }
@@ -74,6 +92,11 @@ namespace UIKit
             }
         }
 
+
+        public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
+        {
+            return firstTarget?.GetInnerTarget(_direction);
+        }
 
         /// <returns>True if the back action was handled, false if not</returns>
         public virtual bool HandleBackAction()

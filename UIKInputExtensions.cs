@@ -62,6 +62,23 @@ namespace UIKit
                 || _inputDeviceType == UIKInputDevice.Mouse
                 || _inputDeviceType == UIKInputDevice.MouseAndKeyboard;
         }
+
+        public static UIKInputDirection Invert(this UIKInputDirection _direction)
+        {
+            switch (_direction)
+            {
+                case UIKInputDirection.Up:
+                    return UIKInputDirection.Down;
+                case UIKInputDirection.Right:
+                    return UIKInputDirection.Left;
+                case UIKInputDirection.Down:
+                    return UIKInputDirection.Up;
+                case UIKInputDirection.Left:
+                    return UIKInputDirection.Right;
+            }
+
+            return _direction;
+        }
         
         public static UIKInputDirection GetInputDirection(this Vector2 _direction)
         {

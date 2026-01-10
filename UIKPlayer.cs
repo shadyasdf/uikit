@@ -77,7 +77,7 @@ namespace UIKit
 
         public static bool TryNavigateUIByDirection(UIKPlayer _player, Vector2 _direction)
         {
-            return TryNavigateUIByDirection(_player, _direction.GetInputDirection());
+            return _player.TryNavigateUIByDirection(_direction.GetInputDirection());
         }
 
         /// <summary>
@@ -87,28 +87,21 @@ namespace UIKit
 
         public static bool TryNavigateUIByDirection(UIKPlayer _player, UIKInputDirection _direction)
         {
-            if (!_player.targetUI)
+            if (!_player.targetUI) // If we don't have a valid target to navigate from
             {
-                // Handle TargetGroup first
-                if (_player.canvas?.topScreen?.firstTarget is UIKTargetGroup targetGroup
-                    && targetGroup.GetInsideTargetFromDirection(_direction) is UIKTarget targetGroupTarget
-                    && targetGroupTarget.CanPlayerTarget(_player))
-                {
-                    return _player.SelectUI(targetGroupTarget);
-                }
-                
-                // Handle Target
-                if (_player.canvas?.topScreen?.firstTarget is UIKTarget target
+                // Handle first target
+                if (_player.canvas?.topScreen?.firstTarget is UIKElement element
+                    && element.GetInnerTarget(_direction) is UIKTarget target
                     && target.CanPlayerTarget(_player))
                 {
                     return _player.SelectUI(target);
                 }
 
-                // If we got here, we don't have a valid target to navigate from, and we can't find a firstTarget from our top screen
+                // If we got here, we can't find an inner target from our top screen
                 return false;
             }
 
-            UIKTarget foundUI = _player.targetUI.FindUI(_direction);
+            UIKTarget foundUI = _player.targetUI.GetOuterTarget(_direction);
             if (foundUI != null)
             {
                 return _player.SelectUI(foundUI);

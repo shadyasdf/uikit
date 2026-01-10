@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 namespace UIKit
 {
+    [RequireComponent(typeof(Button))]
     [RequireComponent(typeof(UIK2DButtonStyle))]
-    public class UIK2DButton : UIK2DTarget, UIKButton
+    public class UIK2DButton : UIKTarget, UIKButton
     {
         [SerializeField] public UnityEvent<UIKEventData> OnClicked = new();
 
@@ -23,6 +24,14 @@ namespace UIKit
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
+
+                Navigation buttonNavigation = button.navigation;
+                buttonNavigation.mode = Navigation.Mode.None;
+                buttonNavigation.selectOnUp = null;
+                buttonNavigation.selectOnDown = null;
+                buttonNavigation.selectOnLeft = null;
+                buttonNavigation.selectOnRight = null;
+                button.navigation = buttonNavigation;
             }
 
             if (GetComponentInParent<UIKScreen>() is UIKScreen screen)

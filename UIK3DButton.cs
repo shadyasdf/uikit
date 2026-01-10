@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 
 namespace UIKit
 {
-    public class UIK3DButton : UIK3DTarget, UIKButton
+    public class UIK3DButton : UIKTarget, UIKButton
     {
         [SerializeField] public UnityEvent<UIKEventData> OnClicked = new();
 

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 namespace UIKit
 {
     [RequireComponent(typeof(VerticalLayoutGroup))]
-    public class UIK2DTargetGroup_Vertical : UIK2DTargetGroup
+    public class UIKElement_2DLayoutGroup_Vertical : UIKElement_2DLayoutGroup
     {
         [SerializeField] protected bool navigationWraps;
         
@@ -15,7 +15,7 @@ namespace UIKit
             return GetComponent<VerticalLayoutGroup>();
         }
 
-        public override UIKTarget GetInsideTargetFromDirection(UIKInputDirection _direction)
+        public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
         {
             if (!GetLayoutGroup())
             {
@@ -31,13 +31,15 @@ namespace UIKit
                     case UIKInputDirection.Down:
                     case UIKInputDirection.Left:
                     case UIKInputDirection.Right:
-                        if (layoutGroupTransform.GetChild(0).GetComponent<UIKTarget>() is UIKTarget topTarget)
+                        if (layoutGroupTransform.GetChild(0).GetComponent<UIKElement>() is UIKElement topElement
+                            && topElement.GetInnerTarget(_direction) is UIKTarget topTarget)
                         {
                             return topTarget;
                         }
                         break;
                     case UIKInputDirection.Up:
-                        if (layoutGroupTransform.GetChild(layoutGroupTransform.childCount - 1).GetComponent<UIKTarget>() is UIKTarget bottomTarget)
+                        if (layoutGroupTransform.GetChild(layoutGroupTransform.childCount - 1).GetComponent<UIKElement>() is UIKElement bottomElement
+                            && bottomElement.GetInnerTarget(_direction) is UIKTarget bottomTarget)
                         {
                             return bottomTarget;
                         }
@@ -50,43 +52,41 @@ namespace UIKit
 
         protected override void RefreshNavigation()
         {
-            List<UIK2DTarget> targets = new();
+            List<UIKElement> elements = new();
             foreach (Transform child in GetLayoutGroup().transform)
             {
                 if (child == null
                     || child.IsPendingDestroy()
-                    || child.GetComponent<UIK2DTarget>() is not UIK2DTarget target)
+                    || child.GetComponent<UIKElement>() is not UIKElement element)
                 {
                     continue;
                 }
                 
-                targets.Add(target);
+                elements.Add(element);
             }
 
-            if (targets.Count > 1) // Only handle internal navigation if we have more than 1 target
+            if (elements.Count > 1) // Only handle internal navigation if we have more than 1 element
             {
-                for (int i = 0; i < targets.Count; i++)
+                for (int i = 0; i < elements.Count; i++)
                 {
-                    if (targets[i] == null)
+                    if (elements[i] == null)
                     {
                         continue;
                     }
-
-                    Navigation navigation = targets[i].selectable.navigation;
 
                     // Determine next selection (downwards)
                     switch (navigationWraps)
                     {
                         case true:
-                            if (i == targets.Count - 1)
+                            if (i == elements.Count - 1)
                             {
-                                if (targets[0] is UIK2DTarget nextTargetWrapped)
+                                if (elements[0] is UIKElement nextElementWrapped)
                                 {
-                                    navigation.selectOnDown = nextTargetWrapped.selectable;
+                                    elements[i].navigation.down = nextElementWrapped;
                                 }
                                 else
                                 {
-                                    navigation.selectOnDown = null;
+                                    elements[i].navigation.down = null;
                                 }
                             }
                             else
@@ -96,14 +96,14 @@ namespace UIKit
                             }
                             break;
                         case false:
-                            if (targets.Count - 1 >= i + 1
-                                && targets[i + 1] is UIK2DTarget nextTarget)
+                            if (elements.Count - 1 >= i + 1
+                                && elements[i + 1] is UIKElement nextElement)
                             {
-                                navigation.selectOnDown = nextTarget.selectable;
+                                elements[i].navigation.down = nextElement;
                             }
                             else
                             {
-                                navigation.selectOnDown = null;
+                                elements[i].navigation.down = null;
                             }
                             break;
                     }
@@ -114,13 +114,13 @@ namespace UIKit
                         case true:
                             if (i == 0)
                             {
-                                if (targets[^1] is UIK2DTarget previousTargetWrapped)
+                                if (elements[^1] is UIKElement previousElementWrapped)
                                 {
-                                    navigation.selectOnUp = previousTargetWrapped.selectable;
+                                    elements[i].navigation.up = previousElementWrapped;
                                 }
                                 else
                                 {
-                                    navigation.selectOnUp = null;
+                                    elements[i].navigation.up = null;
                                 }
                             }
                             else
@@ -131,29 +131,25 @@ namespace UIKit
                             break;
                         case false:
                             if (i - 1 >= 0
-                                && targets[i - 1] is UIK2DTarget previousTarget)
+                                && elements[i - 1] is UIKElement previousElement)
                             {
-                                navigation.selectOnUp = previousTarget.selectable;
+                                elements[i].navigation.up = previousElement;
                             }
                             else
                             {
-                                navigation.selectOnUp = null;
+                                elements[i].navigation.up = null;
                             }
                             break;
                     }
-                    
-                    targets[i].selectable.navigation = navigation;
                 }
             }
             else
             {
-                // Clear out the up and down navigation for our targets
-                foreach (UIK2DTarget target in targets)
+                // Clear out the up and down navigation for our elements
+                foreach (UIKElement element in elements)
                 {
-                    Navigation navigation = target.selectable.navigation;
-                    navigation.selectOnDown = null;
-                    navigation.selectOnUp = null;
-                    target.selectable.navigation = navigation;
+                    element.navigation.down = null;
+                    element.navigation.up = null;
                 }
             }
         }
