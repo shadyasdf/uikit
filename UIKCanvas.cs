@@ -29,6 +29,7 @@ namespace UIKit
         protected Dictionary<int, UIKScreenStack> screenStackByLayer = new();
 
         public UIKScreen topScreen { get; private set; }
+        private List<InputControl> consumedInputControlsThisFrame = new();
         
         
         protected virtual void Awake()
@@ -49,6 +50,11 @@ namespace UIKit
             screenStackPanelRectTransform.sizeDelta = Vector2.zero;
             
             screenStackPanelTransform = screenStackPanelGO.transform;
+        }
+
+        protected virtual void Update()
+        {
+            consumedInputControlsThisFrame.Clear();
         }
 
 
@@ -209,6 +215,11 @@ namespace UIKit
 
         public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
         {
+            if (consumedInputControlsThisFrame.Contains(_context.control))
+            {
+                return false;
+            }
+            
             if (GetOwningPlayer() is UIKPlayer player)
             {
                 // Consume UI inputs before broadcasting them
@@ -220,6 +231,7 @@ namespace UIKit
                     {
                         if (player.TrySubmitUI(player.GetTargetUI()))
                         {
+                            ConsumeInputControl(_context);
                             return false;
                         }
                     }
@@ -230,6 +242,7 @@ namespace UIKit
                     {
                         if (player.TryNavigateUIByDirection(_context.ReadValue<Vector2>()))
                         {
+                            ConsumeInputControl(_context);
                             return false;
                         }
                     }
@@ -243,12 +256,34 @@ namespace UIKit
                 {
                     if (!screen.OnPreInputActionTriggered(_player, _context))
                     {
+                        ConsumeInputControl(_context);
                         return false;
                     }
                 }
             }
 
             return true;
+        }
+
+        private void ConsumeInputControl(InputAction.CallbackContext _context)
+        {
+            // Hack to get around some internal Unity code where they assume the
+            // validity of controls inside an InputAction.CallbackContext. It's
+            // possibly null in this case because sometimes game code will leave
+            // a player due to an input
+            try
+            {
+                if (_context.control == null)
+                {
+                    return;
+                }
+            }
+            catch (IndexOutOfRangeException)
+            {
+                return;
+            }
+            
+            consumedInputControlsThisFrame.Add(_context.control);
         }
 
         private IEnumerable<UIKScreenStack> GetScreenStacksOrdered()

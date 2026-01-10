@@ -89,9 +89,10 @@ namespace UIKit
                     // If this is a back action, and we'd like to handle it
                     if (backInputAction == _context.action)
                     {
-                        HandleBackAction();
-                        
-                        return false;
+                        if (HandleBackAction())
+                        {
+                            return false;
+                        }
                     }
                     
                     // If any of our registered buttons wants to consume this input action, handle it with a click event
@@ -116,9 +117,12 @@ namespace UIKit
             return true;
         }
 
-        public virtual void HandleBackAction()
+        /// <returns>True if the back action was handled, false if not</returns>
+        public virtual bool HandleBackAction()
         {
             CloseScreen();
+            
+            return true;
         }
         
         public virtual void CloseScreen()
