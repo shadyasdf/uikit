@@ -167,6 +167,11 @@ namespace UIKit
 
         public static Type GetTypeFromString(string _string)
         {
+            if (string.IsNullOrEmpty(_string))
+            {
+                return null;
+            }
+            
             foreach (Type actionObjectType in actionObjectTypes)
             {
                 if (actionObjectType.Name == _string)

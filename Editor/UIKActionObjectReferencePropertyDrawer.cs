@@ -21,7 +21,12 @@ namespace UIKit
             List<string> actionObjectOptions = new();
             foreach (Type actionObjectType in actionObjectTypes)
             {
-                actionObjectOptions.Add($"{nameof(actionObjectType)}");
+                if (actionObjectType == null)
+                {
+                    continue;
+                }
+                
+                actionObjectOptions.Add(actionObjectType.Name);
             }
             
             if (actionObjectOptions.Count > 0)
