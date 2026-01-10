@@ -7,6 +7,9 @@ namespace UIKit
     [RequireComponent(typeof(VerticalLayoutGroup))]
     public class UIK2DTargetGroup_Vertical : UIK2DTargetGroup
     {
+        [SerializeField] protected bool navigationWraps;
+        
+        
         protected override LayoutGroup GetLayoutGroup()
         {
             return GetComponent<VerticalLayoutGroup>();
@@ -60,28 +63,98 @@ namespace UIKit
                 targets.Add(target);
             }
 
-            for (int i = 0; i < targets.Count; i++)
+            if (targets.Count > 1) // Only handle internal navigation if we have more than 1 target
             {
-                if (targets[i] == null)
+                for (int i = 0; i < targets.Count; i++)
                 {
-                    continue;
-                }
+                    if (targets[i] == null)
+                    {
+                        continue;
+                    }
 
-                Navigation navigation = targets[i].selectable.navigation;
-                
-                if (targets.Count - 1 >= i + 1
-                    && targets[i + 1] is UIK2DTarget nextTarget)
-                {
-                    navigation.selectOnDown = nextTarget.selectable;
-                }
+                    Navigation navigation = targets[i].selectable.navigation;
 
-                if (i - 1 >= 0
-                    && targets[i - 1] is UIK2DTarget previousTarget)
-                {
-                    navigation.selectOnUp = previousTarget.selectable;
+                    // Determine next selection (downwards)
+                    switch (navigationWraps)
+                    {
+                        case true:
+                            if (i == targets.Count - 1)
+                            {
+                                if (targets[0] is UIK2DTarget nextTargetWrapped)
+                                {
+                                    navigation.selectOnDown = nextTargetWrapped.selectable;
+                                }
+                                else
+                                {
+                                    navigation.selectOnDown = null;
+                                }
+                            }
+                            else
+                            {
+                                // If we're not on the last selectable, ignore wrapping behaviour
+                                goto case false;
+                            }
+                            break;
+                        case false:
+                            if (targets.Count - 1 >= i + 1
+                                && targets[i + 1] is UIK2DTarget nextTarget)
+                            {
+                                navigation.selectOnDown = nextTarget.selectable;
+                            }
+                            else
+                            {
+                                navigation.selectOnDown = null;
+                            }
+                            break;
+                    }
+
+                    // Determine previous selection (upwards)
+                    switch (navigationWraps)
+                    {
+                        case true:
+                            if (i == 0)
+                            {
+                                if (targets[^1] is UIK2DTarget previousTargetWrapped)
+                                {
+                                    navigation.selectOnUp = previousTargetWrapped.selectable;
+                                }
+                                else
+                                {
+                                    navigation.selectOnUp = null;
+                                }
+                            }
+                            else
+                            {
+                                // If we're not on the first selectable, ignore wrapping behaviour
+                                goto case false;
+                            }
+                            break;
+                        case false:
+                            if (i - 1 >= 0
+                                && targets[i - 1] is UIK2DTarget previousTarget)
+                            {
+                                navigation.selectOnUp = previousTarget.selectable;
+                            }
+                            else
+                            {
+                                navigation.selectOnUp = null;
+                            }
+                            break;
+                    }
+                    
+                    targets[i].selectable.navigation = navigation;
                 }
-                
-                targets[i].selectable.navigation = navigation;
+            }
+            else
+            {
+                // Clear out the up and down navigation for our targets
+                foreach (UIK2DTarget target in targets)
+                {
+                    Navigation navigation = target.selectable.navigation;
+                    navigation.selectOnDown = null;
+                    navigation.selectOnUp = null;
+                    target.selectable.navigation = navigation;
+                }
             }
         }
     }
