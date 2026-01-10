@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 namespace UIKit
 {
-    public interface UIKPlayer
+    public interface UIKPlayer : UIKInputActionHandler
     {
         public UnityEvent<InputAction> OnInputActionTriggered { get; set; }
         
@@ -23,9 +23,6 @@ namespace UIKit
         
         /// <returns>Whether this player is locally controlled</returns>
         public bool GetIsLocal();
-        
-        /// <returns>Whether to broadcast this input action</returns>
-        public bool OnPreInputActionTriggered(InputAction.CallbackContext _context);
         
         /// <summary>
         /// Have this function return the result of UIKPlayer.GetInputDevices(this)

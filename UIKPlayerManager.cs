@@ -91,16 +91,16 @@ namespace UIKit
                 // Canvas gets first dibs on consuming input actions, if we have one
                 if (player.canvas)
                 {
-                    if (!player.canvas.OnPreInputActionTriggered(player, _context))
+                    if (player.canvas.HandleInputAction(_context))
                     {
-                        continue; // If we returned false, don't do any further input handling
+                        continue; // If we returned true, don't do any further input handling
                     }
                 }
                 
                 // Player gets second dibs on consuming input actions
-                if (!player.OnPreInputActionTriggered(_context))
+                if (player.HandleInputAction(_context))
                 {
-                    continue; // If we returned false, don't do any further input handling
+                    continue; // If we returned true, don't do any further input handling
                 }
                 
                 // Broadcast the input for anyone to listen to

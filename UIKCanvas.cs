@@ -16,7 +16,7 @@ namespace UIKit
     }
     
     [RequireComponent(typeof(Canvas))]
-    public class UIKCanvas : MonoBehaviour
+    public class UIKCanvas : MonoBehaviour, UIKInputActionHandler
     {
         [HideInInspector] public UnityEvent<UIKScreen> OnTopScreenChanged = new();
 
@@ -213,58 +213,6 @@ namespace UIKit
             }
         }
 
-        public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
-        {
-            if (consumedInputControlsThisFrame.Contains(_context.control))
-            {
-                return false;
-            }
-            
-            if (GetOwningPlayer() is UIKPlayer player)
-            {
-                // Consume UI inputs before broadcasting them
-                if (_context.action == leftClickInputAction
-                    || _context.action == uiSubmitInputAction)
-                {
-                    if (_context.action.WasPressedThisFrame()
-                        && _context.action.triggered)
-                    {
-                        if (player.TrySubmitUI(player.GetTargetUI()))
-                        {
-                            ConsumeInputControl(_context);
-                            return false;
-                        }
-                    }
-                }
-                else if (_context.action == uiMoveInputAction)
-                {
-                    if (_context.action.WasPerformedThisFrame())
-                    {
-                        if (player.TryNavigateUIByDirection(_context.ReadValue<Vector2>()))
-                        {
-                            ConsumeInputControl(_context);
-                            return false;
-                        }
-                    }
-                }
-            }
-            
-            // If any of the screens consume the input action, then we return false
-            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered().ToArray())
-            {
-                foreach (UIKScreen screen in screenStack.GetWidgetsOrdered().Cast<UIKScreen>().ToArray())
-                {
-                    if (!screen.OnPreInputActionTriggered(_player, _context))
-                    {
-                        ConsumeInputControl(_context);
-                        return false;
-                    }
-                }
-            }
-
-            return true;
-        }
-
         private void ConsumeInputControl(InputAction.CallbackContext _context)
         {
             // Hack to get around some internal Unity code where they assume the
@@ -289,6 +237,50 @@ namespace UIKit
         private IEnumerable<UIKScreenStack> GetScreenStacksOrdered()
         {
             return screenStackByLayer.OrderByDescending(p => p.Key).Select(p => p.Value);
+        }
+        
+        public virtual bool HandleInputAction(InputAction.CallbackContext _context)
+        {
+            if (consumedInputControlsThisFrame.Contains(_context.control))
+            {
+                return true;
+            }
+            
+            // Consume UI inputs before broadcasting them
+            if ((_context.action == leftClickInputAction || _context.action == uiSubmitInputAction)
+                && _context.action.WasPressedThisFrame()
+                && _context.action.triggered)
+            {
+                if (GetOwningPlayer().TrySubmitUI(GetOwningPlayer().GetTargetUI()))
+                {
+                    ConsumeInputControl(_context);
+                    return true;
+                }
+            }
+            else if (_context.action == uiMoveInputAction
+                && _context.action.WasPerformedThisFrame())
+            {
+                if (GetOwningPlayer().TryNavigateUIByDirection(_context.ReadValue<Vector2>()))
+                {
+                    ConsumeInputControl(_context);
+                    return true;
+                }
+            }
+            
+            // If any of the screens consume the input action, then we return false
+            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered().ToArray())
+            {
+                foreach (UIKScreen screen in screenStack.GetWidgetsOrdered().Cast<UIKScreen>().ToArray())
+                {
+                    if (screen.HandleInputAction(_context))
+                    {
+                        ConsumeInputControl(_context);
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 } // UIKit namespace

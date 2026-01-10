@@ -29,7 +29,7 @@ namespace UIKit
     }
     
     [RequireComponent(typeof(CanvasGroup))]
-    public abstract class UIKScreen : UIKWidget
+    public abstract class UIKScreen : UIKWidget, UIKInputActionHandler
     {
         [SerializeField] public UIKScreenInputType inputType;
         [SerializeField] public UIKScreenLowerScreenVisibility lowerScreenVisibility;
@@ -73,49 +73,7 @@ namespace UIKit
                 }
             }
         }
-        
-        
-        public virtual bool OnPreInputActionTriggered(UIKPlayer _player, InputAction.CallbackContext _context)
-        {
-            // Only try to consume input actions on the screen if we're active
-            if (active
-                && GetCanvas().GetActionMapForScreenInputType(inputType) is string actionMapName
-                && _context.action.actionMap.name == actionMapName) // and if the input action is in our screen's input type action map
-            {
-                // If this was a button press
-                if (_context.action.WasPressedThisFrame()
-                    && _context.action.triggered)
-                {
-                    // If this is a back action, and we'd like to handle it
-                    if (backInputAction == _context.action)
-                    {
-                        if (HandleBackAction())
-                        {
-                            return false;
-                        }
-                    }
-                    
-                    // If any of our registered buttons wants to consume this input action, handle it with a click event
-                    if (buttonByClickAction.TryGetValue((UIKInputAction)_context.action, out List<UIKButton> buttons))
-                    {
-                        foreach (UIKButton button in buttons)
-                        {
-                            if (button is UIKTarget selectable)
-                            {
-                                if (_player.TryTargetUI(selectable))
-                                {
-                                    _player.TrySubmitUI(selectable);
-                                }
-                            }
-                        }
-                        
-                        return false;
-                    }
-                }
-            }
-        
-            return true;
-        }
+
 
         /// <returns>True if the back action was handled, false if not</returns>
         public virtual bool HandleBackAction()
@@ -205,6 +163,66 @@ namespace UIKit
             }
 
             return null;
+        }
+        
+        public bool HandleInputAction(InputAction.CallbackContext _context)
+        {
+            // Only try to consume input actions on the screen if we're active
+            if (active
+                && GetCanvas().GetActionMapForScreenInputType(inputType) is string actionMapName
+                && _context.action.actionMap.name == actionMapName) // and if the input action is in our screen's input type action map
+            {
+                // If child screen logic wants to capture input first, go for it
+                if (HandleScreenInputAction(_context))
+                {
+                    return true;
+                }
+            }
+        
+            return false;
+        }
+
+        protected virtual bool HandleScreenInputAction(InputAction.CallbackContext _context)
+        {
+            // If this was a button press
+            if (_context.action.WasPressedThisFrame()
+                && _context.action.triggered)
+            {
+                if (HandleScreenButtonPress(_context))
+                {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+
+        protected virtual bool HandleScreenButtonPress(InputAction.CallbackContext _context)
+        {
+            // If this is a back action, and we'd like to handle it
+            if (backInputAction == _context.action)
+            {
+                if (HandleBackAction())
+                {
+                    return true;
+                }
+            }
+                    
+            // If any of our registered buttons wants to consume this input action, handle it with a click event
+            if (buttonByClickAction.TryGetValue((UIKInputAction)_context.action, out List<UIKButton> buttons))
+            {
+                foreach (UIKButton button in buttons)
+                {
+                    if (button is UIKTarget selectable
+                        && GetOwningPlayer().TryTargetUI(selectable)
+                        && GetOwningPlayer().TrySubmitUI(selectable))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
     }
 } // UIKit namespace
