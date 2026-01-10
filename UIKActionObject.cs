@@ -34,58 +34,23 @@ namespace UIKit
 
             return false;
         }
-    }
-
-    [Serializable]
-    public class UIKActionObjectReference
-    {
-        public string type;
-
-
-        public UIKActionObject GetActionObject()
+        
+        
+        private static Dictionary<UIKPlayer, List<UIKActionObject>> actionObjectsByLocalPlayer = new();
+        
+        
+        public static UIKActionObject Get(UIKPlayer _player, Type _type)
         {
-            foreach (UIKActionObject actionObject in UIKActionObjectReflector.GetAllActionObjects())
+            if (!actionObjectsByLocalPlayer.ContainsKey(_player))
             {
-                if (actionObject.GetType().Name == type)
+                actionObjectsByLocalPlayer.Add(_player, new List<UIKActionObject>());
+                foreach (Type actionObjectType in UIKActionObjectReflector.GetAllActionObjectTypes())
                 {
-                    return actionObject;
+                    actionObjectsByLocalPlayer[_player].Add(UIKActionObjectReflector.Create(actionObjectType));
                 }
             }
             
-            return null;
-        }
-    }
-    
-    public static class UIKActionObjectReflector
-    {
-        private static List<UIKActionObject> actionObjects = new();
-        
-        
-        static UIKActionObjectReflector()
-        {
-            actionObjects.Clear();
-            
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                foreach (Type type in assembly.GetTypes())
-                {
-                    if (type.IsSubclassOf(typeof(UIKActionObject))
-                        && !type.IsAbstract) // Ignore abstract classes since we don't want to register them
-                    {
-                        UIKActionObject actionObject = (UIKActionObject)Activator.CreateInstance(type);
-                        if (actionObject != null)
-                        {
-                            actionObjects.Add(actionObject);
-                        }
-                    }
-                }
-            }
-        }
-
-        
-        private static UIKActionObject Get(Type _type)
-        {
-            foreach (UIKActionObject actionObject in actionObjects)
+            foreach (UIKActionObject actionObject in actionObjectsByLocalPlayer[_player])
             {
                 if (actionObject.GetType() == _type)
                 {
@@ -95,42 +60,28 @@ namespace UIKit
 
             return null;
         }
-
-        public static List<UIKActionObject> GetAllActionObjects()
-        {
-            // Clear out invalid action objects
-            for (int i = actionObjects.Count - 1; i >= 0; i--)
-            {
-                if (actionObjects[i] == null)
-                {
-                    actionObjects.RemoveAt(i);
-                }
-            }
-            
-            return actionObjects;
-        }
         
-        public static void ReceiveContext<T>(params object[] _args) where T : UIKActionObject
+        public static void ReceiveContext<T>(UIKPlayer _player, params object[] _args) where T : UIKActionObject
         {
-            ReceiveContext(typeof(T), _args);
+            ReceiveContext(_player, typeof(T), _args);
         }
 
-        public static void ReceiveContext(Type _type, params object[] _args)
+        public static void ReceiveContext(UIKPlayer _player, Type _type, params object[] _args)
         {
-            if (Get(_type) is UIKActionObject actionObject)
+            if (Get(_player, _type) is UIKActionObject actionObject)
             {
                 actionObject.OnReceivedContext(_args);
             }
         }
         
-        public static bool CanExecute<T>() where T : UIKActionObject
+        public static bool CanExecute<T>(UIKPlayer _player) where T : UIKActionObject
         {
-            return CanExecute(typeof(T));
+            return CanExecute(_player, typeof(T));
         }
 
-        public static bool CanExecute(Type _type)
+        public static bool CanExecute(UIKPlayer _player, Type _type)
         {
-            if (Get(_type) is UIKActionObject actionObject)
+            if (Get(_player, _type) is UIKActionObject actionObject)
             {
                 return actionObject.CanExecute();
             }
@@ -138,19 +89,93 @@ namespace UIKit
             return false;
         }
 
-        public static bool TryExecute<T>() where T : UIKActionObject
+        public static bool TryExecute<T>(UIKPlayer _player) where T : UIKActionObject
         {
-            return TryExecute(typeof(T));
+            return TryExecute(_player, typeof(T));
         }
 
-        public static bool TryExecute(Type _type)
+        public static bool TryExecute(UIKPlayer _player, Type _type)
         {
-            if (Get(_type) is UIKActionObject actionObject)
+            if (Get(_player, _type) is UIKActionObject actionObject)
             {
                 return actionObject.TryExecute();
             }
 
             return false;
+        }
+    }
+
+    [Serializable]
+    public class UIKActionObjectReference
+    {
+        public string type;
+
+
+        public UIKActionObject GetActionObject(UIKPlayer _player)
+        {
+            if (UIKActionObjectReflector.GetTypeFromString(type) is Type actionObjectType
+                && UIKActionObject.Get(_player, actionObjectType) is UIKActionObject actionObject)
+            {
+                return actionObject;
+            }
+            
+            return null;
+        }
+    }
+    
+    public static class UIKActionObjectReflector
+    {
+        private static List<Type> actionObjectTypes = new();
+        
+        
+        static UIKActionObjectReflector()
+        {
+            actionObjectTypes.Clear();
+            
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                foreach (Type type in assembly.GetTypes())
+                {
+                    if (type.IsSubclassOf(typeof(UIKActionObject))
+                        && !type.IsAbstract) // Ignore abstract classes since we don't want to register them
+                    {
+                        actionObjectTypes.Add(type);
+                    }
+                }
+            }
+        }
+        
+        
+        public static UIKActionObject Create(Type _type)
+        {
+            foreach (Type actionObjectType in actionObjectTypes)
+            {
+                if (actionObjectType == _type
+                    && (UIKActionObject)Activator.CreateInstance(actionObjectType) is UIKActionObject actionObject)
+                {
+                    return actionObject;
+                }
+            }
+
+            return null;
+        }
+
+        public static List<Type> GetAllActionObjectTypes()
+        {
+            return actionObjectTypes;
+        }
+
+        public static Type GetTypeFromString(string _string)
+        {
+            foreach (Type actionObjectType in actionObjectTypes)
+            {
+                if (actionObjectType.Name == _string)
+                {
+                    return actionObjectType;
+                }
+            }
+
+            return null;
         }
     }
 } // UIKit namespace

@@ -68,7 +68,7 @@ namespace UIKit
         public void HandleClick(UIKEventData _eventData)
         {
             if (clickActionObject != null
-                && clickActionObject.GetActionObject() is UIKActionObject actionObject)
+                && clickActionObject.GetActionObject(GetOwningPlayer()) is UIKActionObject actionObject)
             {
                 actionObject.TryExecute();
             }

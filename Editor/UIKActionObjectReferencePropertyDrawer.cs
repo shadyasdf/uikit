@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace UIKit
 {
@@ -16,44 +16,44 @@ namespace UIKit
             
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
-            List<UIKActionObject> actionObjects = UIKActionObjectReflector.GetAllActionObjects();
+            List<Type> actionObjectTypes = UIKActionObjectReflector.GetAllActionObjectTypes();
 
             List<string> actionObjectOptions = new();
-            foreach (UIKActionObject actionObject in actionObjects)
+            foreach (Type actionObjectType in actionObjectTypes)
             {
-                actionObjectOptions.Add($"{actionObject.GetType().Name}");
+                actionObjectOptions.Add($"{nameof(actionObjectType)}");
             }
             
             if (actionObjectOptions.Count > 0)
             {
-                actionObjects.Insert(0, null);
+                actionObjectTypes.Insert(0, null);
                 actionObjectOptions.Insert(0, "Invalid");
             }
             else
             {
-                actionObjects.Insert(0, null);
-                actionObjectOptions.Insert(0, "Invalid (No Action Objects Not Found)");
+                actionObjectTypes.Insert(0, null);
+                actionObjectOptions.Insert(0, "Invalid (No Action Object Types Not Found)");
             }
             
             SerializedProperty typeProperty = property.FindPropertyRelative("type");
             
-            int indexOfAction = actionObjects.FindIndex(i =>
+            int indexOfAction = actionObjectTypes.FindIndex(i =>
             {
                 return i != null
                     && !string.IsNullOrEmpty(typeProperty.stringValue)
-                    && i.GetType().Name == typeProperty.stringValue;
+                    && i.Name == typeProperty.stringValue;
             });
             indexOfAction = Mathf.Max(indexOfAction, 0);
             
             // Display a dropdown of natively defined tags on the next line
-            Rect keyFieldRect = new Rect(position.x, position.y, position.width, position.height);
+            Rect keyFieldRect = new(position.x, position.y, position.width, position.height);
             int clickedOption = EditorGUI.Popup(keyFieldRect, indexOfAction, actionObjectOptions.ToArray());
 
             if (indexOfAction != clickedOption)
             {
-                if (clickedOption > actionObjects.Count) // The value was somehow too large
+                if (clickedOption > actionObjectTypes.Count) // The value was somehow too large
                 {
-                    clickedOption = actionObjects.Count;
+                    clickedOption = actionObjectTypes.Count;
                 }
                 else if (clickedOption < 0) // The value was somehow too small
                 {
@@ -67,7 +67,7 @@ namespace UIKit
                 }
                 else
                 {
-                    typeProperty.stringValue = actionObjects[clickedOption].GetType().Name;
+                    typeProperty.stringValue = actionObjectTypes[clickedOption].Name;
                 }
             }
 
