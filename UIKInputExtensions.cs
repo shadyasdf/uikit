@@ -62,5 +62,34 @@ namespace UIKit
                 || _inputDeviceType == UIKInputDevice.Mouse
                 || _inputDeviceType == UIKInputDevice.MouseAndKeyboard;
         }
+        
+        public static UIKInputDirection GetInputDirection(this Vector2 _direction)
+        {
+            // The native Selectable.FindSelectable(Vector3 dir) will ignore explicit navigation rules,
+            // so we need to convert our input Vector2 direction into our enum so they don't navigate
+            // to places they shouldn't
+
+            float directionAngle = Vector2.SignedAngle(Vector2.right, _direction);
+
+            UIKInputDirection direction = UIKInputDirection.Right;
+            if (directionAngle < 45.0f && directionAngle >= -45.0f)
+            {
+                direction = UIKInputDirection.Right;
+            }
+            else if (directionAngle < 135.0f && directionAngle >= 45.0f)
+            {
+                direction = UIKInputDirection.Up;
+            }
+            else if (directionAngle < -135.0f || directionAngle >= 135.0f)
+            {
+                direction = UIKInputDirection.Left;
+            }
+            else if (directionAngle < -45.0f && directionAngle >= -135.0f)
+            {
+                direction = UIKInputDirection.Down;
+            }
+
+            return direction;
+        }
     }
 } // UIKit namespace

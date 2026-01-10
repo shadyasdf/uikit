@@ -28,7 +28,7 @@ namespace UIKit
                 return null;
             }
 
-            return FindUI(VectorToInputDirection(_direction));
+            return FindUI(((Vector2)_direction).GetInputDirection());
         }
 
         public override UIKTarget FindUI(UIKInputDirection _direction)

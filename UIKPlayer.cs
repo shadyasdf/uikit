@@ -80,25 +80,7 @@ namespace UIKit
 
         public static bool TryNavigateUIByDirection(UIKPlayer _player, Vector2 _direction)
         {
-            if (!_player.targetUI)
-            {
-                if (_player.canvas?.topScreen?.firstTarget is UIKTarget target
-                    && target.CanPlayerTarget(_player))
-                {
-                    return _player.SelectUI(target);
-                }
-
-                // If we got here, we don't have a valid target to navigate from, and we can't find a firstTarget from our top screen
-                return false;
-            }
-
-            UIKTarget foundUI = _player.targetUI.FindUI(_direction);
-            if (foundUI != null)
-            {
-                return _player.SelectUI(foundUI);
-            }
-
-            return false;
+            return TryNavigateUIByDirection(_player, _direction.GetInputDirection());
         }
 
         /// <summary>
@@ -110,6 +92,15 @@ namespace UIKit
         {
             if (!_player.targetUI)
             {
+                // Handle TargetGroup first
+                if (_player.canvas?.topScreen?.firstTarget is UIKTargetGroup targetGroup
+                    && targetGroup.GetInsideTargetFromDirection(_direction) is UIKTarget targetGroupTarget
+                    && targetGroupTarget.CanPlayerTarget(_player))
+                {
+                    return _player.SelectUI(targetGroupTarget);
+                }
+                
+                // Handle Target
                 if (_player.canvas?.topScreen?.firstTarget is UIKTarget target
                     && target.CanPlayerTarget(_player))
                 {

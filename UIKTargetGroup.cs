@@ -8,6 +8,7 @@ namespace UIKit
         public abstract UIKTarget GetInsideTargetFromDirection(UIKInputDirection _direction);
         public abstract UIKTarget GetOutsideTargetFromDirection(UIKInputDirection _direction);
         public abstract void AddTarget(UIKTarget _target);
+        public abstract void RemoveTarget(UIKTarget _target);
         
         
         public override UIKTarget FindUI(Vector3 _direction)

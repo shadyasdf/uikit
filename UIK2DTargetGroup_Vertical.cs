@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -42,6 +43,46 @@ namespace UIKit
             }
             
             return null;
+        }
+
+        protected override void RefreshNavigation()
+        {
+            List<UIK2DTarget> targets = new();
+            foreach (Transform child in GetLayoutGroup().transform)
+            {
+                if (child == null
+                    || child.IsPendingDestroy()
+                    || child.GetComponent<UIK2DTarget>() is not UIK2DTarget target)
+                {
+                    continue;
+                }
+                
+                targets.Add(target);
+            }
+
+            for (int i = 0; i < targets.Count; i++)
+            {
+                if (targets[i] == null)
+                {
+                    continue;
+                }
+
+                Navigation navigation = targets[i].selectable.navigation;
+                
+                if (targets.Count - 1 >= i + 1
+                    && targets[i + 1] is UIK2DTarget nextTarget)
+                {
+                    navigation.selectOnDown = nextTarget.selectable;
+                }
+
+                if (i - 1 >= 0
+                    && targets[i - 1] is UIK2DTarget previousTarget)
+                {
+                    navigation.selectOnUp = previousTarget.selectable;
+                }
+                
+                targets[i].selectable.navigation = navigation;
+            }
         }
     }
 } // UIKit namespace

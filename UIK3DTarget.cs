@@ -10,7 +10,7 @@ namespace UIKit
         
         public override UIKTarget FindUI(Vector3 _direction)
         {
-            return FindUI(VectorToInputDirection(_direction));
+            return FindUI(((Vector2)_direction).GetInputDirection());
         }
 
         public override UIKTarget FindUI(UIKInputDirection _direction)

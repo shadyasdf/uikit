@@ -36,12 +36,29 @@ namespace UIKit
         public override void AddTarget(UIKTarget _target)
         {
             if (_target == null
+                || _target is not UIK2DTarget target2D
                 || !GetLayoutGroup())
             {
                 return;
             }
             
             _target.transform.SetParent(GetLayoutGroup().transform, false);
+            
+            RefreshNavigation();
         }
+
+        public override void RemoveTarget(UIKTarget _target)
+        {
+            if (_target == null)
+            {
+                return;
+            }
+            
+            _target.gameObject.SafeDestroy();
+
+            RefreshNavigation();
+        }
+
+        protected abstract void RefreshNavigation();
     }
 } // UIKit namespace
