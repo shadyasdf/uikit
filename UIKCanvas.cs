@@ -237,9 +237,9 @@ namespace UIKit
             }
             
             // If any of the screens consume the input action, then we return false
-            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered())
+            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered().ToArray())
             {
-                foreach (UIKScreen screen in screenStack.GetWidgetsOrdered().Cast<UIKScreen>())
+                foreach (UIKScreen screen in screenStack.GetWidgetsOrdered().Cast<UIKScreen>().ToArray())
                 {
                     if (!screen.OnPreInputActionTriggered(_player, _context))
                     {
