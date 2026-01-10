@@ -8,6 +8,8 @@ namespace UIKit
     public class UIKWidgetStack : MonoBehaviour
     {
         [HideInInspector] public UnityEvent OnStackChanged = new();
+
+        [SerializeField] protected bool manageActivation = true;
         
         protected List<UIKWidget> widgetsInStack = new();
         
@@ -103,22 +105,25 @@ namespace UIKit
                     widgetsInStack.Add(widget);
                 }
             }
-            
-            // Deactivate widgets that we're not tracking that are pending destruction
-            foreach (Transform child in transform)
-            {
-                if (child?.gameObject
-                    && child.gameObject.IsPendingDestroy()
-                    && child.GetComponent<UIKWidget>() is UIKWidget widget)
-                {
-                    widget.Deactivate();
-                }
-            }
 
-            // Deactivate all widgets in the stack and activate the topmost one
-            for (int i = 0; i < widgetsInStack.Count; i++)
+            if (manageActivation)
             {
-                widgetsInStack[i].SetActive(i == widgetsInStack.Count - 1);
+                // Deactivate widgets that we're not tracking that are pending destruction
+                foreach (Transform child in transform)
+                {
+                    if (child?.gameObject
+                        && child.gameObject.IsPendingDestroy()
+                        && child.GetComponent<UIKWidget>() is UIKWidget widget)
+                    {
+                        widget.Deactivate();
+                    }
+                }
+
+                // Deactivate all widgets in the stack and activate the topmost one
+                for (int i = 0; i < widgetsInStack.Count; i++)
+                {
+                    widgetsInStack[i].SetActive(i == widgetsInStack.Count - 1);
+                }
             }
             
             OnStackChanged.Invoke();
