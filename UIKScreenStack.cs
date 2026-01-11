@@ -11,10 +11,16 @@ namespace UIKit
             if (widgetsInStack.Count > 0)
             {
                 UIKScreenLowerScreenVisibility visibility = UIKScreenLowerScreenVisibility.ShowAll;
+                
+                // Top screen should always be visible
                 if (widgetsInStack[^1] is UIKScreen topScreen)
                 {
-                    // Top screen should always be visible
-                    topScreen.GetCanvasGroup().alpha = 1f;
+                    if (topScreen.GetCanvasGroup() is CanvasGroup canvasGroup)
+                    {
+                        canvasGroup.interactable = true;
+                        canvasGroup.blocksRaycasts = true;
+                        canvasGroup.alpha = 1f;
+                    }
 
                     visibility = topScreen.lowerScreenVisibility;
                 }
@@ -24,6 +30,8 @@ namespace UIKit
                     if (widgetsInStack[i] is UIKScreen screen
                         && screen.GetCanvasGroup() is CanvasGroup canvasGroup)
                     {
+                        canvasGroup.interactable = false;
+                        canvasGroup.blocksRaycasts = false;
                         switch (visibility)
                         {
                             case UIKScreenLowerScreenVisibility.ShowAll:
