@@ -46,9 +46,9 @@ namespace UIKit
                 inputActionOptions.Insert(0, "Invalid (No Input Actions Not Found)");
             }
             
-            SerializedProperty assetProperty = property.FindPropertyRelative("asset");
-            SerializedProperty actionMapProperty = property.FindPropertyRelative("actionMap");
-            SerializedProperty actionProperty = property.FindPropertyRelative("action");
+            SerializedProperty assetProperty = property.FindPropertyRelative(nameof(UIKInputAction.asset));
+            SerializedProperty actionMapProperty = property.FindPropertyRelative(nameof(UIKInputAction.actionMap));
+            SerializedProperty actionProperty = property.FindPropertyRelative(nameof(UIKInputAction.action));
             
             int indexOfAction = inputActions.FindIndex(i =>
             {
@@ -62,7 +62,7 @@ namespace UIKit
             indexOfAction = Mathf.Max(indexOfAction, 0);
             
             // Display a dropdown of natively defined tags on the next line
-            Rect keyFieldRect = new Rect(position.x, position.y, position.width, position.height);
+            Rect keyFieldRect = new(position.x, position.y, position.width, position.height);
             int clickedOption = EditorGUI.Popup(keyFieldRect, indexOfAction, inputActionOptions.ToArray());
 
             if (indexOfAction != clickedOption)
