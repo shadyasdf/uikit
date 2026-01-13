@@ -14,6 +14,7 @@ namespace UIKit
         [SerializeField] protected UIKActionObjectReference clickActionObject;
         [SerializeField] protected UIKInputAction clickInputAction;
         
+        public UIK2DButtonStyle style { get; private set; }
         protected Button button { get; private set; }
         
 
@@ -35,6 +36,8 @@ namespace UIKit
                 buttonNavigation.selectOnRight = null;
                 button.navigation = buttonNavigation;
             }
+
+            style = GetComponent<UIK2DButtonStyle>();
 
             if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
             {

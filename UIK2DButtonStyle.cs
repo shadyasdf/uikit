@@ -51,22 +51,45 @@ namespace UIKit
                 uik2DButton.OnTargeted.AddListener(OnTargeted);
                 uik2DButton.OnUntargeted.AddListener(OnUntargeted);
             }
+            
+            UpdateTransitionGraphic();
         }
 
 
         protected virtual void OnTargeted(UIKPlayer _player)
         {
-            if (transitionGraphic)
-            {
-                transitionGraphic.color = targetedColor;
-            }
+            UpdateTransitionGraphic();
         }
         
         protected virtual void OnUntargeted(UIKPlayer _player)
         {
+            UpdateTransitionGraphic();
+        }
+
+        public void SetNormalColor(Color _color)
+        {
+            normalColor = _color;
+            UpdateTransitionGraphic();
+        }
+        
+        public void SetTargetedColor(Color _color)
+        {
+            targetedColor = _color;
+            UpdateTransitionGraphic();
+        }
+
+        private void UpdateTransitionGraphic()
+        {
             if (transitionGraphic)
             {
-                transitionGraphic.color = normalColor;
+                if (uik2DButton.targeted)
+                {
+                    transitionGraphic.color = targetedColor;
+                }
+                else
+                {
+                    transitionGraphic.color = normalColor;
+                }
             }
         }
     }
