@@ -20,7 +20,8 @@ namespace UIKit
         
         [HideInInspector] public List<UIKPlayer> targetedByPlayers = new();
         public bool hovered { get; private set; } // Hovered is only used for the KeyboardAndMouse InputDeviceType
-
+        public bool interactable { get; private set; } = true;
+        
 
         public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
         {
@@ -29,6 +30,11 @@ namespace UIKit
         
         public virtual bool CanPlayerInteract(UIKPlayer _player)
         {
+            if (!interactable)
+            {
+                return false;
+            }
+            
             if (GetOwningPlayer() is UIKPlayer owningPlayer // If we have a valid owning player
                 && owningPlayer != _player) // and it's not this player
             {
@@ -70,11 +76,21 @@ namespace UIKit
 
         public virtual void OnPointerEnter(PointerEventData eventData)
         {
+            if (!interactable)
+            {
+                return;
+            }
+            
             SetHovered(true);
         }
 
         public virtual void OnPointerExit(PointerEventData eventData)
         {
+            if (!interactable)
+            {
+                return;
+            }
+            
             SetHovered(false);
         }
         
@@ -111,6 +127,22 @@ namespace UIKit
         public void HandleUntargeted(UIKPlayer _player)
         {
             OnUntargeted?.Invoke(_player);
+        }
+
+        public void SetInteractable(bool _interactable)
+        {
+            if (interactable == _interactable)
+            {
+                return;
+            }
+            
+            interactable = _interactable;
+            
+            OnInteractableChanged();
+        }
+
+        protected virtual void OnInteractableChanged()
+        {
         }
     }
 } // UIKit namespace

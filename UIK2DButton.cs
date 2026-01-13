@@ -14,13 +14,15 @@ namespace UIKit
         [SerializeField] protected UIKActionObjectReference clickActionObject;
         [SerializeField] protected UIKInputAction clickInputAction;
         
+        protected Button button { get; private set; }
+        
 
         protected override void OnPreConstruct(bool _isOnValidate)
         {
             base.OnPreConstruct(_isOnValidate);
             
             // Clear all OnClick listeners, we do not want to use that event when we're using this UI system
-            Button button = GetComponent<Button>();
+            button = GetComponent<Button>();
             if (button != null)
             {
                 button.onClick.RemoveAllListeners();
@@ -111,6 +113,16 @@ namespace UIKit
         public UIKTarget GetSelectable()
         {
             return this;
+        }
+
+        protected override void OnInteractableChanged()
+        {
+            base.OnInteractableChanged();
+
+            if (button)
+            {
+                button.interactable = interactable;
+            }
         }
     }
 } // UIKit namespace
