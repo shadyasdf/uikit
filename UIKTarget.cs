@@ -20,6 +20,7 @@ namespace UIKit
         
         [HideInInspector] public List<UIKPlayer> targetedByPlayers = new();
         public bool hovered { get; private set; } // Hovered is only used for the KeyboardAndMouse InputDeviceType
+        public bool targeted { get; private set; }
         public bool interactable { get; private set; } = true;
         
 
@@ -121,11 +122,15 @@ namespace UIKit
 
         public void HandleTargeted(UIKPlayer _player)
         {
+            targeted = true;
+            
             OnTargeted?.Invoke(_player);
         }
 
         public void HandleUntargeted(UIKPlayer _player)
         {
+            targeted = false;
+            
             OnUntargeted?.Invoke(_player);
         }
 
