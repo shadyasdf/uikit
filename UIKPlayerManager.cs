@@ -112,51 +112,7 @@ namespace UIKit
         {
             if (instance.players.FirstOrDefault(p => p.playerInput == _playerInput) is UIKPlayer player)
             {
-                if (_playerInput.devices.Count == 1)
-                {
-                    if (_playerInput.devices[0] == null)
-                    {
-                        Debug.LogError("Player's playerInput device was null");
-                        return;
-                    }
-
-                    player.inputDeviceType = _playerInput.devices[0].GetInputDeviceType();
-                    return;
-                }
-                else if (_playerInput.devices.Count == 2)
-                {
-                    bool hasMouse = false;
-                    bool hasKeyboard = false;
-
-                    foreach (InputDevice inputDevice in _playerInput.devices)
-                    {
-                        if (inputDevice.GetInputDeviceType() == UIKInputDevice.Mouse)
-                        {
-                            hasMouse = true;
-                            continue;
-                        }
-
-                        if (inputDevice.GetInputDeviceType() == UIKInputDevice.Keyboard)
-                        {
-                            hasKeyboard = true;
-                            continue;
-                        }
-                    }
-
-                    if (hasKeyboard && hasMouse)
-                    {
-                        player.inputDeviceType = UIKInputDevice.MouseAndKeyboard;
-                        return;
-                    }
-
-                    Debug.LogError("Failed to find valid InputDeviceType for given set of 2 devices");
-                    return;
-                }
-                else
-                {
-                    Debug.LogError("Failed to find valid playerInput device");
-                    return;
-                }
+                UIKPlayer.OnControlsChanged(player, _playerInput);
             }
         }
     }

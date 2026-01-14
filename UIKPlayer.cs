@@ -8,6 +8,8 @@ namespace UIKit
     public interface UIKPlayer : UIKInputActionHandler
     {
         public UnityEvent<InputAction> OnInputActionTriggered { get; set; }
+        public UnityEvent<string> OnInputActionMapChanged { get; set; }
+        public UnityEvent<UIKInputDevice> OnInputDeviceTypeChanged { get; set; }
         
         public PlayerInput playerInput { get; set; }
         public UIKCanvas canvas { get; set; }
@@ -32,6 +34,77 @@ namespace UIKit
         public static InputDevice[] GetInputDevices(UIKPlayer _player)
         {
             return _player.playerInput.devices.ToArray();
+        }
+        
+        public static void OnControlsChanged(UIKPlayer _player, PlayerInput _playerInput)
+        {
+            UIKInputDevice newInputDeviceType = _player.inputDeviceType;
+            if (_playerInput.devices.Count == 1)
+            {
+                if (_playerInput.devices[0] == null)
+                {
+                    Debug.LogError("Player's playerInput device was null");
+                    return;
+                }
+
+                newInputDeviceType = _playerInput.devices[0].GetInputDeviceType();
+            }
+            else if (_playerInput.devices.Count == 2)
+            {
+                bool hasMouse = false;
+                bool hasKeyboard = false;
+
+                foreach (InputDevice inputDevice in _playerInput.devices)
+                {
+                    if (inputDevice.GetInputDeviceType() == UIKInputDevice.Mouse)
+                    {
+                        hasMouse = true;
+                        continue;
+                    }
+
+                    if (inputDevice.GetInputDeviceType() == UIKInputDevice.Keyboard)
+                    {
+                        hasKeyboard = true;
+                        continue;
+                    }
+                }
+
+                if (hasKeyboard && hasMouse)
+                {
+                    newInputDeviceType = UIKInputDevice.MouseAndKeyboard;
+                }
+                else
+                {
+                    Debug.LogError("Failed to find valid InputDeviceType for given set of 2 devices");
+                }
+            }
+            else
+            {
+                Debug.LogError("Failed to find valid playerInput device");
+            }
+
+            if (_player.inputDeviceType != newInputDeviceType)
+            {
+                _player.inputDeviceType = newInputDeviceType;
+                _player.OnInputDeviceTypeChanged?.Invoke(_player.inputDeviceType);
+            }
+        }
+        
+        /// <summary>
+        /// Have this function call UIKPlayer.SetInputActionMap(this, _actionMap)
+        /// </summary>
+        public void SetInputActionMap(string _actionMap);
+
+        public static void SetInputActionMap(UIKPlayer _player, string _actionMap)
+        {
+            if (!string.IsNullOrEmpty(_actionMap)
+                && _player.playerInput
+                && _player.playerInput.currentActionMap.name != _actionMap)
+            {
+                _player.playerInput.SwitchCurrentActionMap(_actionMap);
+                
+                _player.OnInputActionMapChanged?.Invoke(_player.playerInput.currentActionMap.name);
+            }
         }
         
         protected void OnTargetUIChanged(UIKTarget _oldTarget, UIKTarget _newTarget);

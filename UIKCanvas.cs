@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Minikit;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -14,16 +15,24 @@ namespace UIKit
         public UIKScreenInputType screenInputType;
         public UIKActionMap actionMap;
     }
+
+    [Serializable]
+    public struct UIKInputDeviceInputIconDatabase
+    {
+        public UIKInputDevice inputDevice;
+        public UIKInputIconDatabase inputIconDatabase;
+    }
     
     [RequireComponent(typeof(Canvas))]
     public class UIKCanvas : MonoBehaviour, UIKInputActionHandler
     {
         [HideInInspector] public UnityEvent<UIKScreen> OnTopScreenChanged = new();
 
-        [SerializeField] public List<UIKScreenInputTypeActionMap> screenInputTypeActionMaps = new();
         [SerializeField] protected UIKInputAction leftClickInputAction;
         [SerializeField] protected UIKInputAction uiSubmitInputAction;
         [SerializeField] protected UIKInputAction uiMoveInputAction;
+        [SerializeField] public List<UIKScreenInputTypeActionMap> screenInputTypeActionMaps = new();
+        [SerializeField] public List<UIKInputDeviceInputIconDatabase> inputDeviceInputIconDatabases = new();
         
         protected Transform screenStackPanelTransform;
         protected Dictionary<int, UIKScreenStack> screenStackByLayer = new();
@@ -115,7 +124,7 @@ namespace UIKit
                         // Switching our current action map will re-broadcast any inputs from this frame
                         yield return new WaitForEndOfFrame();
                     
-                        player.playerInput.SwitchCurrentActionMap(actionMapName);
+                        player.SetInputActionMap(actionMapName);
                     }
                 }  
             }
@@ -247,7 +256,7 @@ namespace UIKit
             }
             
             // Consume UI inputs before broadcasting them
-            if ((_context.action == leftClickInputAction || _context.action == uiSubmitInputAction)
+            if ((leftClickInputAction == _context.action || uiSubmitInputAction == _context.action)
                 && _context.action.WasPressedThisFrame()
                 && _context.action.triggered)
             {
@@ -257,7 +266,7 @@ namespace UIKit
                     return true;
                 }
             }
-            else if (_context.action == uiMoveInputAction
+            else if (uiMoveInputAction == _context.action
                 && _context.action.WasPerformedThisFrame())
             {
                 if (GetOwningPlayer().TryNavigateUIByDirection(_context.ReadValue<Vector2>()))
@@ -281,6 +290,41 @@ namespace UIKit
             }
 
             return false;
+        }
+
+        public Sprite GetInputActionIcon(InputAction _inputAction)
+        {
+            if (GetOwningPlayer() is UIKPlayer player
+                && _inputAction != null
+                && _inputAction.bindings.Count > 0
+                && _inputAction.bindings[0] is InputBinding binding)
+            {
+                foreach (UIKInputDeviceInputIconDatabase inputIconDatabase in inputDeviceInputIconDatabases)
+                {
+                    if (player.inputDeviceType.HasAnyFlags(inputIconDatabase.inputDevice))
+                    {
+                        if (inputIconDatabase.inputIconDatabase.GetIcon(binding.effectivePath) is Sprite sprite)
+                        {
+                            return sprite;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public string GetInputActionName(InputAction _inputAction)
+        {
+            if (_inputAction != null)
+            {
+                string bindingDisplayString = _inputAction.GetBindingDisplayString();
+                bindingDisplayString = bindingDisplayString.Split("|")[0];
+                bindingDisplayString = bindingDisplayString.TrimEnd();
+                return bindingDisplayString;
+            }
+
+            return string.Empty;
         }
     }
 } // UIKit namespace
