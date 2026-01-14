@@ -12,7 +12,6 @@ namespace UIKit
     }
     
     [RequireComponent(typeof(Button))]
-    [RequireComponent(typeof(UIK2DButton))]
     public class UIK2DButtonStyle : UIKMonoBehaviour
     {
         [SerializeField] protected UIKStyleTransition transition = UIKStyleTransition.None;

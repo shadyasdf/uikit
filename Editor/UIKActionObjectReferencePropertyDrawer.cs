@@ -16,38 +16,24 @@ namespace UIKit
             
             position = EditorGUI.PrefixLabel(position, GUIUtility.GetControlID(FocusType.Passive), label);
 
-            List<Type> actionObjectTypes = UIKActionObjectReflector.GetAllActionObjectTypes();
-
             List<string> actionObjectOptions = new();
-            foreach (Type actionObjectType in actionObjectTypes)
+            foreach (Type actionObjectType in UIKActionObjectReflector.GetAllActionObjectTypes())
             {
-                if (actionObjectType == null)
-                {
-                    continue;
-                }
-                
                 actionObjectOptions.Add(actionObjectType.Name);
             }
             
             if (actionObjectOptions.Count > 0)
             {
-                actionObjectTypes.Insert(0, null);
                 actionObjectOptions.Insert(0, "Invalid");
             }
             else
             {
-                actionObjectTypes.Insert(0, null);
                 actionObjectOptions.Insert(0, "Invalid (No Action Object Types Not Found)");
             }
             
-            SerializedProperty typeProperty = property.FindPropertyRelative("type");
+            SerializedProperty typeProperty = property.FindPropertyRelative(nameof(UIKActionObjectReference.type));
             
-            int indexOfAction = actionObjectTypes.FindIndex(i =>
-            {
-                return i != null
-                    && !string.IsNullOrEmpty(typeProperty.stringValue)
-                    && i.Name == typeProperty.stringValue;
-            });
+            int indexOfAction = actionObjectOptions.FindIndex(s => s == typeProperty.stringValue);
             indexOfAction = Mathf.Max(indexOfAction, 0);
             
             // Display a dropdown of natively defined tags on the next line
@@ -56,9 +42,9 @@ namespace UIKit
 
             if (indexOfAction != clickedOption)
             {
-                if (clickedOption > actionObjectTypes.Count) // The value was somehow too large
+                if (clickedOption > actionObjectOptions.Count) // The value was somehow too large
                 {
-                    clickedOption = actionObjectTypes.Count;
+                    clickedOption = actionObjectOptions.Count;
                 }
                 else if (clickedOption < 0) // The value was somehow too small
                 {
@@ -72,7 +58,7 @@ namespace UIKit
                 }
                 else
                 {
-                    typeProperty.stringValue = actionObjectTypes[clickedOption].Name;
+                    typeProperty.stringValue = actionObjectOptions[clickedOption];
                 }
             }
 

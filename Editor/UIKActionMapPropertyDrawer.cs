@@ -42,8 +42,8 @@ namespace UIKit
                 actionMapOptions.Insert(0, "Invalid (No Action Maps Not Found)");
             }
             
-            SerializedProperty assetProperty = property.FindPropertyRelative("asset");
-            SerializedProperty actionMapProperty = property.FindPropertyRelative("name");
+            SerializedProperty assetProperty = property.FindPropertyRelative(nameof(UIKActionMap.asset));
+            SerializedProperty actionMapProperty = property.FindPropertyRelative(nameof(UIKActionMap.name));
             
             int indexOfAction = actionMaps.FindIndex(i =>
             {

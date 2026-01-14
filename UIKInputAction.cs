@@ -47,10 +47,16 @@ namespace UIKit
 
         public override bool Equals(object _obj)
         {
-            if (_obj == null
-                && !IsValid())
+            if (_obj == null)
             {
-                return true;
+                if (!IsValid())
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
             }
 
             if (_obj is UIKInputAction uikInputAction)
@@ -80,38 +86,14 @@ namespace UIKit
             return HashCode.Combine(actionMap, action);
         }
 
-        public static bool operator ==(UIKInputAction _lhs, UIKInputAction _rhs)
+        public static bool operator ==(UIKInputAction _lhs, object _rhs)
         {
             if (_lhs is null && _rhs is null) return true;
             if (_lhs is null || _rhs is null) return false;
             return _lhs.Equals(_rhs);
         }
 
-        public static bool operator !=(UIKInputAction _lhs, UIKInputAction _rhs)
-        {
-            return !(_lhs == _rhs);
-        }
-
-        public static bool operator ==(UIKInputAction _lhs, InputAction _rhs)
-        {
-            if (_lhs is null && _rhs is null) return true;
-            if (_lhs is null || _rhs is null) return false;
-            return _lhs.Equals(_rhs); // UIKInputAction doesn't handle .Equals with InputAction, use UIKInputAction as lhs
-        }
-
-        public static bool operator !=(UIKInputAction _lhs, InputAction _rhs)
-        {
-            return !(_lhs == _rhs);
-        }
-
-        public static bool operator ==(InputAction _lhs, UIKInputAction _rhs)
-        {
-            if (_lhs is null && _rhs is null) return true;
-            if (_lhs is null || _rhs is null) return false;
-            return _rhs.Equals(_lhs); // InputAction doesn't handle .Equals with UIKInputAction, use UIKInputAction as lhs
-        }
-
-        public static bool operator !=(InputAction _lhs, UIKInputAction _rhs)
+        public static bool operator !=(UIKInputAction _lhs, object _rhs)
         {
             return !(_lhs == _rhs);
         }
