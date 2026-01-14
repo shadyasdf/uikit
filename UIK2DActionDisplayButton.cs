@@ -9,6 +9,11 @@ public class UIK2DActionDisplayButton : UIK2DButton
 {
     [SerializeField] protected TMP_Text text;
     [SerializeField] protected Image image;
+
+    [Space(10)]
+    [Header("Editor Preview Only")]
+    [SerializeField] protected string editorPreviewText;
+    [SerializeField] protected Sprite editorPreviewIcon;
     
     
     protected override void OnPreConstruct(bool _isOnValidate)
@@ -21,8 +26,16 @@ public class UIK2DActionDisplayButton : UIK2DButton
             player.OnInputActionMapChanged.AddListener(Player_OnInputActionMapChanged);
             player.OnInputDeviceTypeChanged.AddListener(Player_OnInputDeviceTypeChanged);
         }
-            
-        UpdateDisplay();
+
+        if (_isOnValidate)
+        {
+            text.SetText(editorPreviewText);
+            image.sprite = editorPreviewIcon;
+        }
+        else
+        {
+            UpdateDisplay();
+        }
     }
     
     protected virtual void UpdateDisplay()
@@ -55,9 +68,10 @@ public class UIK2DActionDisplayButton : UIK2DButton
             return;
         }
         
-        if (GetCanvas() is UIKCanvas canvas)
+        if (GetOwningPlayer() is UIKPlayer player
+            && player.canvas is UIKCanvas canvas)
         {
-            text.SetText(canvas.GetInputActionName(_inputAction));
+            text.SetText(clickActionObject.GetActionText(player));
             image.sprite = canvas.GetInputActionIcon(_inputAction);
         }
         else

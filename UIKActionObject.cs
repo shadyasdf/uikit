@@ -122,6 +122,30 @@ namespace UIKit
             return null;
         }
     }
+
+    public static class UIKActionObjectExtensions
+    {
+        public static string GetActionText(this UIKActionObjectReference _actionObjectReference, UIKPlayer _player)
+        {
+            if (_actionObjectReference.GetActionObject(_player) is UIKActionObject actionObject)
+            {
+                return actionObject.GetActionText();
+            }
+
+            return string.Empty;
+        }
+        
+        public static string GetActionText(this UIKActionObject _actionObject)
+        {
+            if (_actionObject.GetType().GetCustomAttribute<UIKActionObjectAttribute>() is UIKActionObjectAttribute attribute
+                && !string.IsNullOrEmpty(attribute.actionText))
+            {
+                return attribute.actionText;
+            }
+            
+            return string.Empty;
+        }
+    }
     
     public static class UIKActionObjectReflector
     {
