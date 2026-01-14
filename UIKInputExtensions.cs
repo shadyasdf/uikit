@@ -28,6 +28,18 @@ namespace UIKit
             return inputDevices.ToArray();
         }
 
+        public static UIKInputDevice GetInputDeviceFromString(string _string)
+        {
+            switch (_string)
+            {
+                case "Keyboard": return UIKInputDevice.Keyboard;
+                case "Mouse": return UIKInputDevice.Mouse;
+                case "Gamepad": return UIKInputDevice.Gamepad;
+            }
+
+            return UIKInputDevice.NONE;
+        }
+
         public static UIKInputDevice GetInputDeviceType(this InputAction.CallbackContext _context)
         {
             return _context.control.device.GetInputDeviceType();

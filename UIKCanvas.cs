@@ -296,17 +296,30 @@ namespace UIKit
         {
             if (GetOwningPlayer() is UIKPlayer player
                 && _inputAction != null
-                && _inputAction.bindings.Count > 0
-                && _inputAction.bindings[0] is InputBinding binding)
+                && _inputAction.bindings.Count > 0)
             {
-                foreach (UIKInputDeviceInputIconDatabase inputIconDatabase in inputDeviceInputIconDatabases)
+                foreach (InputBinding inputBinding in _inputAction.bindings)
                 {
-                    if (player.inputDeviceType.HasAnyFlags(inputIconDatabase.inputDevice))
+                    string path = inputBinding.effectivePath;
+                    string deviceFromPath = path.Split(">")[0].TrimStart('<');
+                    UIKInputDevice bindingInputDevice = UIKInputExtensions.GetInputDeviceFromString(deviceFromPath);
+                    
+                    if (player.inputDeviceType.IsFlagSet(bindingInputDevice))
                     {
-                        if (inputIconDatabase.inputIconDatabase.GetIcon(binding.effectivePath) is Sprite sprite)
+                        foreach (UIKInputDeviceInputIconDatabase inputIconDatabase in inputDeviceInputIconDatabases)
                         {
-                            return sprite;
+                            if (inputIconDatabase.inputDevice.IsFlagSet(bindingInputDevice))
+                            {
+                                if (inputIconDatabase.inputIconDatabase.GetIcon(inputBinding.effectivePath) is Sprite sprite)
+                                {
+                                    return sprite;
+                                }
+                                
+                                break;
+                            }
                         }
+                        
+                        break;
                     }
                 }
             }
