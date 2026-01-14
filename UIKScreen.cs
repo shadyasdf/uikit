@@ -36,7 +36,8 @@ namespace UIKit
         [SerializeField] public UIKInputAction backInputAction;
         [SerializeField] public UIKElement firstTarget;
         
-        protected Dictionary<UIKInputAction, List<UIKButton>> buttonByClickAction = new();
+        protected Dictionary<UIKInputAction, List<UIKButton>> buttonByAction = new();
+        protected Dictionary<UIKInputAction, List<UIKActionTrigger>> triggerByAction = new();
 
 
         protected override void OnPreConstruct(bool _isOnValidate)
@@ -119,28 +120,56 @@ namespace UIKit
 
         public virtual void RegisterButton(UIKButton _button)
         {
-            if (_button?.GetClickAction() is UIKInputAction clickAction
-                && clickAction.IsValid())
+            if (_button?.GetClickAction() is UIKInputAction inputAction
+                && inputAction.IsValid())
             {
-                if (buttonByClickAction.TryGetValue(clickAction, out List<UIKButton> boundButtons))
+                if (buttonByAction.TryGetValue(inputAction, out List<UIKButton> boundButtons))
                 {
                     boundButtons.Add(_button);
                 }
                 else
                 {
-                    buttonByClickAction.Add(clickAction, new List<UIKButton>() { _button });
+                    buttonByAction.Add(inputAction, new List<UIKButton> { _button });
                 }
             }
         }
 
         public virtual void UnregisterButton(UIKButton _button)
         {
-            if (_button?.GetClickAction() is UIKInputAction clickAction
-                && clickAction.IsValid())
+            if (_button?.GetClickAction() is UIKInputAction inputAction
+                && inputAction.IsValid())
             {
-                if (buttonByClickAction.TryGetValue(clickAction, out List<UIKButton> boundButtons))
+                if (buttonByAction.TryGetValue(inputAction, out List<UIKButton> boundButtons))
                 {
                     boundButtons.Remove(_button);
+                }
+            }
+        }
+
+        public virtual void RegisterActionTrigger(UIKActionTrigger _actionTrigger)
+        {
+            if (_actionTrigger?.GetTriggerInputAction() is UIKInputAction inputAction
+                && inputAction.IsValid())
+            {
+                if (triggerByAction.TryGetValue(inputAction, out List<UIKActionTrigger> boundTriggers))
+                {
+                    boundTriggers.Add(_actionTrigger);
+                }
+                else
+                {
+                    triggerByAction.Add(inputAction, new List<UIKActionTrigger> { _actionTrigger });
+                }
+            }
+        }
+
+        public virtual void UnregisterActionTrigger(UIKActionTrigger _actionTrigger)
+        {
+            if (_actionTrigger?.GetTriggerInputAction() is UIKInputAction inputAction
+                && inputAction.IsValid())
+            {
+                if (triggerByAction.TryGetValue(inputAction, out List<UIKActionTrigger> boundTriggers))
+                {
+                    boundTriggers.Remove(_actionTrigger);
                 }
             }
         }
@@ -215,6 +244,11 @@ namespace UIKit
                 {
                     return true;
                 }
+
+                if (HandleScreenActionTrigger(_context))
+                {
+                    return true;
+                }
             }
             
             return false;
@@ -232,13 +266,31 @@ namespace UIKit
             }
                     
             // If any of our registered buttons wants to consume this input action, handle it with a click event
-            if (buttonByClickAction.TryGetValue((UIKInputAction)_context.action, out List<UIKButton> buttons))
+            if (buttonByAction.TryGetValue((UIKInputAction)_context.action, out List<UIKButton> buttons))
             {
                 foreach (UIKButton button in buttons)
                 {
                     if (button is UIKTarget selectable
                         && GetOwningPlayer().TryTargetUI(selectable)
                         && GetOwningPlayer().TrySubmitUI(selectable))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        protected virtual bool HandleScreenActionTrigger(InputAction.CallbackContext _context)
+        { 
+            // If any of our registered action triggers wants to consume this input action, handle it by executing it
+            if (triggerByAction.TryGetValue((UIKInputAction)_context.action, out List<UIKActionTrigger> actionTriggers))
+            {
+                foreach (UIKActionTrigger actionTrigger in actionTriggers)
+                {
+                    if (actionTrigger.GetTriggerActionObject() is UIKActionObject actionObject
+                        && actionObject.TryExecute())
                     {
                         return true;
                     }

@@ -97,7 +97,7 @@ namespace UIKit
             topScreen = newTopScreen;
             if (lastTopScreen != topScreen)
             {
-                OnTopScreenChanged?.Invoke(topScreen);
+                HandleTopScreenChanged();
                 
                 if (topScreen
                     && GetOwningPlayer() is UIKPlayer player)
@@ -128,6 +128,11 @@ namespace UIKit
                     }
                 }  
             }
+        }
+
+        protected virtual void HandleTopScreenChanged()
+        {
+            OnTopScreenChanged?.Invoke(topScreen);
         }
 
         public virtual Camera GetCamera()

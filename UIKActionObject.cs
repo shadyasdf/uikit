@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace UIKit
 {
@@ -13,8 +14,19 @@ namespace UIKit
     
     public abstract class UIKActionObject
     {
+        public UnityEvent<bool> OnCanExecuteChanged = new();
+        
+        protected UIKPlayer player;
+        
+        
+        public virtual void Initialize(UIKPlayer _player)
+        {
+            player = _player;
+        }
+        
         public virtual void OnReceivedContext(params object[] _args)
         {
+            OnCanExecuteChanged?.Invoke(CanExecute());
         }
         
         public virtual bool CanExecute()
@@ -46,7 +58,10 @@ namespace UIKit
                 actionObjectsByLocalPlayer.Add(_player, new List<UIKActionObject>());
                 foreach (Type actionObjectType in UIKActionObjectReflector.GetAllActionObjectTypes())
                 {
-                    actionObjectsByLocalPlayer[_player].Add(UIKActionObjectReflector.Create(actionObjectType));
+                    UIKActionObject actionObject = UIKActionObjectReflector.Create(actionObjectType);
+                    actionObject.Initialize(_player);
+                    
+                    actionObjectsByLocalPlayer[_player].Add(actionObject);
                 }
             }
             

@@ -91,5 +91,10 @@ namespace UIKit
                 }
             }
         }
+
+        public void SetGraphicVisible(bool _visible)
+        {
+            transitionGraphic.enabled = _visible;
+        }
     }
 } // UIKit namespace

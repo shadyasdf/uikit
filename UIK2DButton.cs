@@ -39,9 +39,12 @@ namespace UIKit
 
             style = GetComponent<UIK2DButtonStyle>();
 
-            if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
+            if (!_isOnValidate)
             {
-                screen.RegisterButton(this);
+                if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
+                {
+                    screen.RegisterButton(this);
+                }
             }
         }
 
