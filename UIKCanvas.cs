@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Minikit;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -170,23 +170,34 @@ namespace UIKit
             return null;
         }
         
-        public void PushScreen(string _name)
+        public UIKScreen PushScreen(string _name)
         {
-            if (UIKScreen.GetScreenAttribute(_name) is UIKScreenAttribute screenAttribute
-                && GetScreenStack(screenAttribute.layer) is UIKScreenStack screenStack
-                && UIKScreen.GetScreenPrefab(_name) is GameObject screenPrefab)
+            if (UIKScreen.GetScreenPrefab(_name) is GameObject screenPrefab
+                && screenPrefab.GetComponent<UIKScreen>() is UIKScreen screen
+                && screen.GetType().GetCustomAttribute<UIKScreenAttribute>() is UIKScreenAttribute screenAttribute
+                && GetScreenStack(screenAttribute.layer) is UIKScreenStack screenStack)
             {
                 screenStack.PushToStack(screenAttribute.name, screenPrefab);
+                
+                return screen;
             }
+
+            return null;
         }
 
         public void PopScreen(string _name)
         {
-            if (UIKScreen.GetScreenAttribute(_name) is UIKScreenAttribute screenAttribute
-                && GetScreenStack(screenAttribute.layer) is UIKScreenStack screenStack
-                && screenStack.GetWidgetByName(_name) is UIKWidget screenWidget)
+            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered())
             {
-                screenStack.PopFromStack(screenWidget);
+                foreach (UIKWidget screenWidget in screenStack.GetWidgetsOrdered())
+                {
+                    if (screenWidget.widgetName == _name)
+                    {
+                        screenStack.PopFromStack(screenWidget);
+                        
+                        return;
+                    }
+                }
             }
         }
 
