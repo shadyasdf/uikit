@@ -1,6 +1,4 @@
-using System.Linq;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace UIKit
 {
@@ -75,12 +73,7 @@ namespace UIKit
         {
             if (actionDisplay != null)
             {
-                if (clickInputAction != null
-                    && GetOwningPlayer()?.playerInput is PlayerInput playerInput
-                    && playerInput.currentActionMap.actions.FirstOrDefault(a => clickInputAction == a) is InputAction nativeInputAction)
-                {
-                    actionDisplay.SetInputAction(nativeInputAction, false);
-                }
+                actionDisplay.SetInputAction(clickInputAction, false);
 
                 if (clickActionObject != null
                     && GetOwningPlayer() is UIKPlayer player)

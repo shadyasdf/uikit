@@ -1,3 +1,4 @@
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -38,9 +39,17 @@ namespace UIKit
         }
 
 
-        public void SetInputAction(InputAction _inputAction, bool _refresh = true)
+        public void SetInputAction(UIKInputAction _inputAction, bool _refresh = true)
         {
-            displayInputAction = _inputAction;
+            if (GetOwningPlayer()?.playerInput is PlayerInput playerInput
+                && playerInput.currentActionMap.actions.FirstOrDefault(a => _inputAction == a) is InputAction inputAction)
+            {
+                displayInputAction = inputAction;
+            }
+            else
+            {
+                displayInputAction = null;
+            }
 
             if (_refresh)
             {
