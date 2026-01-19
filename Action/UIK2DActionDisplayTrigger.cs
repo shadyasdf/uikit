@@ -4,14 +4,13 @@ using UnityEngine.InputSystem;
 
 namespace UIKit
 {
-    public class UIK2DActionDisplayButton : UIK2DButton
+    public class UIK2DActionDisplayTrigger : UIKMonoBehaviour, UIKActionTrigger
     {
         [SerializeField] protected UIK2DActionDisplay actionDisplay;
         [SerializeField] protected CanvasGroup canvasGroup;
-
-        private bool canExecute;
-        private bool canClick;
-
+        [SerializeField] protected UIKActionObjectReference actionObject;
+        [SerializeField] protected UIKInputAction inputAction;
+        
 
         protected override void OnPreConstruct(bool _isOnValidate)
         {
@@ -19,14 +18,18 @@ namespace UIKit
             
             if (!_isOnValidate)
             {
+                if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
+                {
+                    screen.RegisterActionTrigger(this);
+                }
+                
                 if (GetOwningPlayer() is UIKPlayer player)
                 {
                     player.OnInputActionMapChanged.AddListener(Player_OnInputActionMapChanged);
                     player.OnInputDeviceTypeChanged.AddListener(Player_OnInputDeviceTypeChanged);
-                    UpdateCanClick(player.inputDeviceType.UsesCursor());
 
-                    if (clickActionObject != null
-                        && clickActionObject.GetActionObject(player) is UIKActionObject actionObjectInstance)
+                    if (actionObject != null
+                        && actionObject.GetActionObject(player) is UIKActionObject actionObjectInstance)
                     {
                         actionObjectInstance.OnCanExecuteChanged.AddListener(ActionObject_OnCanExecuteChanged);
                         ActionObject_OnCanExecuteChanged(actionObjectInstance.CanExecute());
@@ -37,27 +40,39 @@ namespace UIKit
             }
         }
 
-
-        protected virtual void UpdateCanInteract(bool _canExecute)
+        protected override void OnPreDestroy()
         {
-            canExecute = _canExecute;
+            base.OnPreDestroy();
             
-            if (canvasGroup != null)
+            if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
             {
-                canvasGroup.alpha = canExecute ? 1f : 0.5f;
-                canvasGroup.interactable = canExecute && canClick;
-                canvasGroup.blocksRaycasts = canExecute && canClick;
+                screen.UnregisterActionTrigger(this);
             }
         }
-
-        protected virtual void UpdateCanClick(bool _canClick)
+        
+        
+        public UIKActionObject GetTriggerActionObject()
         {
-            canClick = _canClick;
-            
-            style.SetGraphicVisible(canClick);
-            
-            canvasGroup.interactable = canExecute && canClick;
-            canvasGroup.blocksRaycasts = canExecute && canClick;
+            if (actionObject != null
+                && GetOwningPlayer() is UIKPlayer player)
+            {
+                return actionObject.GetActionObject(player);
+            }
+
+            return null;
+        }
+
+        public UIKInputAction GetTriggerInputAction()
+        {
+            return inputAction;
+        }
+        
+        protected virtual void UpdateCanInteract(bool _canExecute)
+        {
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = _canExecute ? 1f : 0.5f;
+            }
         }
 
         private void Player_OnInputActionMapChanged(string _actionMap)
@@ -68,24 +83,23 @@ namespace UIKit
         private void Player_OnInputDeviceTypeChanged(UIKInputDevice _inputDeviceType)
         {
             RefreshActionDisplay();
-            UpdateCanClick(_inputDeviceType.UsesCursor());
         }
 
         private void RefreshActionDisplay()
         {
             if (actionDisplay != null)
             {
-                if (clickInputAction != null
+                if (inputAction != null
                     && GetOwningPlayer()?.playerInput is PlayerInput playerInput
-                    && playerInput.currentActionMap.actions.FirstOrDefault(a => clickInputAction == a) is InputAction nativeInputAction)
+                    && playerInput.currentActionMap.actions.FirstOrDefault(a => inputAction == a) is InputAction nativeInputAction)
                 {
                     actionDisplay.SetInputAction(nativeInputAction, false);
                 }
 
-                if (clickActionObject != null
+                if (actionObject != null
                     && GetOwningPlayer() is UIKPlayer player)
                 {
-                    actionDisplay.SetActionText(clickActionObject.GetActionText(player), false);
+                    actionDisplay.SetActionText(actionObject.GetActionText(player), false);
                 }
                 
                 actionDisplay.RefreshDisplay();
@@ -97,4 +111,4 @@ namespace UIKit
             UpdateCanInteract(_canExecute);
         }
     }
-} // UIKit namespace
+}
