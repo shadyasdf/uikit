@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -30,6 +31,28 @@ namespace UIKit
             _element.gameObject.SafeDestroy();
 
             RefreshNavigation();
+        }
+
+        public virtual List<UIKElement> GetTargets()
+        {
+            List<UIKElement> targets = new();
+            foreach (Transform child in GetLayoutGroup().transform)
+            {
+                if (child.GetComponent<UIKElement>() is UIKElement element)
+                {
+                    targets.Add(element);
+                }
+            }
+
+            return targets;
+        }
+
+        public virtual void ClearTargets()
+        {
+            foreach (UIKElement target in GetTargets())
+            {
+                RemoveTarget(target);
+            }
         }
 
         protected abstract void RefreshNavigation();
