@@ -104,7 +104,7 @@ namespace UIKit
                 }
                 
                 // Broadcast the input for anyone to listen to
-                player.OnInputActionTriggered.Invoke(_context.action);
+                player.OnInputActionTriggered.Invoke(_context);
             }
         }
         

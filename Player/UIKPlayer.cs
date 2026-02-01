@@ -7,7 +7,7 @@ namespace UIKit
 {
     public interface UIKPlayer : UIKInputActionHandler
     {
-        public UnityEvent<InputAction> OnInputActionTriggered { get; set; }
+        public UnityEvent<InputAction.CallbackContext> OnInputActionTriggered { get; set; }
         public UnityEvent<string> OnInputActionMapChanged { get; set; }
         public UnityEvent<UIKInputDevice> OnInputDeviceTypeChanged { get; set; }
         
