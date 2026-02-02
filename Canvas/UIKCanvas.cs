@@ -238,7 +238,7 @@ namespace UIKit
             }
         }
 
-        private void ConsumeInputControl(InputAction.CallbackContext _context)
+        protected void ConsumeInputControl(InputAction.CallbackContext _context)
         {
             // Hack to get around some internal Unity code where they assume the
             // validity of controls inside an InputAction.CallbackContext. It's
@@ -279,6 +279,7 @@ namespace UIKit
                 if (GetOwningPlayer().TrySubmitUI(GetOwningPlayer().GetTargetUI()))
                 {
                     ConsumeInputControl(_context);
+                    
                     return true;
                 }
             }
@@ -288,6 +289,7 @@ namespace UIKit
                 if (GetOwningPlayer().TryNavigateUIByDirection(_context.ReadValue<Vector2>()))
                 {
                     ConsumeInputControl(_context);
+                    
                     return true;
                 }
             }
@@ -300,6 +302,7 @@ namespace UIKit
                     if (screen.HandleInputAction(_context))
                     {
                         ConsumeInputControl(_context);
+                        
                         return true;
                     }
                 }

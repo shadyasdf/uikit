@@ -184,9 +184,7 @@ namespace UIKit
         public bool HandleInputAction(InputAction.CallbackContext _context)
         {
             // Only try to consume input actions on the screen if we're active
-            if (active
-                && GetCanvas().GetActionMapForScreenInputType(inputType) is string actionMapName
-                && _context.action.actionMap.name == actionMapName) // and if the input action is in our screen's input type action map
+            if (active)
             {
                 // If child screen logic wants to capture input first, go for it
                 if (HandleScreenInputAction(_context))

@@ -88,6 +88,14 @@ namespace UIKit
             // For all players using the device that the input action was triggered on
             foreach (UIKPlayer player in instance.players.Where(p => p.GetInputDevices().Contains(_context.action.activeControl.device)).ToArray())
             {
+                // Don't allow inputs that aren't in the current action map to pass
+                if (_context.action.actionMap != null
+                    && player.playerInput.currentActionMap != null
+                    && _context.action.actionMap.name != player.playerInput.currentActionMap.name)
+                {
+                    continue;
+                }
+                
                 // Canvas gets first dibs on consuming input actions, if we have one
                 if (player.canvas)
                 {

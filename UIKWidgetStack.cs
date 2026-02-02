@@ -131,7 +131,7 @@ namespace UIKit
 
         protected virtual UIKWidget TryInstantiateWidget(GameObject _widgetPrefab, Transform _parentTransform)
         {
-            if (_widgetPrefab == null)
+            if (!_widgetPrefab)
             {
                 Debug.LogError("Failed to instantiate widget prefab because it was null.");
                 return null;
