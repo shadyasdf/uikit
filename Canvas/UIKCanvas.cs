@@ -207,8 +207,9 @@ namespace UIKit
             {
                 GameObject screenStackGO = new(_layer.ToString(), typeof(RectTransform), typeof(UIKScreenStack));
                 screenStackGO.transform.SetParent(screenStackPanelTransform);
-                screenStackGO.transform.localScale = Vector3.one;
                 screenStackGO.transform.localPosition = Vector3.zero;
+                screenStackGO.transform.localRotation = Quaternion.identity;
+                screenStackGO.transform.localScale = Vector3.one;
                 
                 RectTransform screenStackRectTransform = screenStackGO.GetComponent<RectTransform>();
                 screenStackRectTransform.anchorMin = Vector2.zero;
