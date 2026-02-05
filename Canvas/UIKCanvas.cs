@@ -178,6 +178,7 @@ namespace UIKit
                 && GetScreenStack(screenAttribute.layer) is UIKScreenStack screenStack)
             {
                 UIKScreen screenInstance = screenStack.PushToStack(screenAttribute.name, screenPrefab) as UIKScreen;
+                OnPostScreenPushed(screenInstance);
                 
                 return screenInstance;
             }
@@ -194,12 +195,21 @@ namespace UIKit
                     if (screenWidget.widgetName == _name
                         && screenWidget is UIKScreen screenInstance)
                     {
+                        OnPreScreenPopped(screenInstance);
                         screenStack.PopFromStack(screenInstance);
                         
                         return;
                     }
                 }
             }
+        }
+
+        protected virtual void OnPostScreenPushed(UIKScreen _screen)
+        {
+        }
+
+        protected virtual void OnPreScreenPopped(UIKScreen _screen)
+        {
         }
 
         public UIKScreenStack GetScreenStack(int _layer)
