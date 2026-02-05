@@ -177,9 +177,9 @@ namespace UIKit
                 && screen.GetType().GetCustomAttribute<UIKScreenAttribute>() is UIKScreenAttribute screenAttribute
                 && GetScreenStack(screenAttribute.layer) is UIKScreenStack screenStack)
             {
-                screenStack.PushToStack(screenAttribute.name, screenPrefab);
+                UIKScreen screenInstance = screenStack.PushToStack(screenAttribute.name, screenPrefab) as UIKScreen;
                 
-                return screen;
+                return screenInstance;
             }
 
             return null;
@@ -191,9 +191,10 @@ namespace UIKit
             {
                 foreach (UIKWidget screenWidget in screenStack.GetWidgetsOrdered())
                 {
-                    if (screenWidget.widgetName == _name)
+                    if (screenWidget.widgetName == _name
+                        && screenWidget is UIKScreen screenInstance)
                     {
-                        screenStack.PopFromStack(screenWidget);
+                        screenStack.PopFromStack(screenInstance);
                         
                         return;
                     }

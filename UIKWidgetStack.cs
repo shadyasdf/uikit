@@ -14,17 +14,20 @@ namespace UIKit
         protected List<UIKWidget> widgetsInStack = new();
         
 
-        public virtual void PushToStack(string _widgetName, GameObject _widgetPrefab)
+        public virtual UIKWidget PushToStack(string _widgetName, GameObject _widgetPrefab)
         {
             if (TryInstantiateWidget(_widgetPrefab, transform) is UIKWidget widget)
             {
                 widget.Setup(_widgetName, this);
+                UpdateWidgetsInStack();
+                
+                return widget;
             }
             
-            UpdateWidgetsInStack();
+            return null;
         }
         
-        public virtual void PopFromStack(UIKWidget _widget)
+        public virtual bool PopFromStack(UIKWidget _widget)
         {
             foreach (Transform child in transform)
             {
@@ -32,24 +35,29 @@ namespace UIKit
                     && widget == _widget)
                 {
                     widget.gameObject.SafeDestroy();
-                    break;
+                    UpdateWidgetsInStack();
+
+                    return true;
                 }
             }
             
-            UpdateWidgetsInStack();
+            return false;
         }
 
-        public virtual void PopStack()
+        public virtual bool PopStack()
         {
             if (transform.childCount > 0)
             {
                 if (transform.GetChild(0).GetComponent<UIKWidget>() is UIKWidget widget)
                 {
                     widget.gameObject.SafeDestroy();
+                    UpdateWidgetsInStack();
+
+                    return true;
                 }
             }
             
-            UpdateWidgetsInStack();
+            return false;
         }
 
         public virtual void ClearStack()

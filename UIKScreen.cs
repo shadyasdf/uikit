@@ -269,7 +269,7 @@ namespace UIKit
             handle.WaitForCompletion(); // Not typically good practice, but the screen system is not build for async right now
             GameObject screenPrefab = handle.Result;
             
-            if (screenPrefab != null
+            if (screenPrefab
                 && screenPrefab.GetComponent<UIKScreen>() is UIKScreen screen
                 && screen.GetType().GetCustomAttribute(typeof(UIKScreenAttribute)) is UIKScreenAttribute screenAttribute
                 && screenAttribute.name == _name)
