@@ -42,7 +42,7 @@ namespace UIKit
 
         public UIKCanvas GetCanvas()
         {
-            return GetComponentInParent<UIKCanvas>();
+            return GetComponentInParent<UIKCanvas>(true);
         }
 
         public UIKPlayer GetOwningPlayer()

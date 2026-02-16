@@ -53,7 +53,7 @@ namespace UIKit
             
             // If we made it this far, this element didn't have navigation set up for that direction
             // We should check for a container element we're inside and use their outer target
-            if (transform.parent?.GetComponentInParent<UIKElement>() is UIKElement parentElement) // .parent because GetComponentInParent includes self 
+            if (transform.parent?.GetComponentInParent<UIKElement>(true) is UIKElement parentElement) // .parent because GetComponentInParent includes self 
             {
                 return parentElement.GetOuterTarget(_direction);
             }

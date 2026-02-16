@@ -15,7 +15,7 @@ namespace UIKit
         {
             base.OnPreConstruct(_isOnValidate);
             
-            if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
+            if (GetComponentInParent<UIKScreen>(true) is UIKScreen screen)
             {
                 screen.RegisterButton(this);
             }
@@ -25,7 +25,7 @@ namespace UIKit
         {
             base.OnPreDestroy();
             
-            if (GetComponentInParent<UIKScreen>() is UIKScreen screen)
+            if (GetComponentInParent<UIKScreen>(true) is UIKScreen screen)
             {
                 screen.UnregisterButton(this);
             }
