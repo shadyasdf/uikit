@@ -63,6 +63,14 @@ namespace UIKit
 
         protected virtual void Update()
         {
+            if (GetOwningPlayer() is UIKPlayer player
+                && !player.targetUI
+                && !player.inputDeviceType.UsesCursor()
+                && GetFirstValidTarget(player) is UIKTarget target)
+            {
+                player.TryTargetUI(target);
+            }
+            
             consumedInputControlsThisFrame.Clear();
         }
 
@@ -132,6 +140,31 @@ namespace UIKit
 
         protected virtual void HandleTopScreenChanged()
         {
+            if (GetOwningPlayer() is UIKPlayer player
+                && !player.inputDeviceType.UsesCursor())
+            {
+                if (player.targetUI)
+                {
+                    bool targetIsInTopScreen = false;
+                    if (topScreen)
+                    {
+                        foreach (UIKTarget target in topScreen.GetComponentsInChildren<UIKTarget>())
+                        {
+                            if (player.targetUI == target)
+                            {
+                                targetIsInTopScreen = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    if (!targetIsInTopScreen)
+                    {
+                        player.TryUntargetUI(player.targetUI);
+                    }
+                }
+            }
+            
             OnTopScreenChanged?.Invoke(topScreen);
         }
 
@@ -152,6 +185,18 @@ namespace UIKit
                         return screen;
                     }
                 }
+            }
+
+            return null;
+        }
+
+        public virtual UIKTarget GetFirstValidTarget(UIKPlayer _player)
+        {
+            if (topScreen?.firstTarget is UIKElement element
+                && element.GetInnerTarget(UIKInputDirection.Down) is UIKTarget target
+                && target.CanPlayerTarget(_player))
+            {
+                return target;
             }
 
             return null;
@@ -197,6 +242,7 @@ namespace UIKit
                     {
                         OnPreScreenPopped(screenInstance);
                         screenStack.PopFromStack(screenInstance);
+                        OnPostScreenPopped();
                         
                         return;
                     }
@@ -209,6 +255,10 @@ namespace UIKit
         }
 
         protected virtual void OnPreScreenPopped(UIKScreen _screen)
+        {
+        }
+
+        protected virtual void OnPostScreenPopped()
         {
         }
 

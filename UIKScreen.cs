@@ -59,43 +59,8 @@ namespace UIKit
                 navigation = new UIKNavigation();
             }
         }
-
-        protected override void OnActivate()
-        {
-            base.OnActivate();
-            
-            // Attempt to make a new first selection on this screen automatically 
-            if (GetOwningPlayer() is UIKPlayer player
-                && !player.targetUI
-                && !player.inputDeviceType.UsesCursor()) // if we don't use MKB
-            {
-                if (firstTarget?.GetInnerTarget(UIKInputDirection.Down) is UIKTarget target
-                    && target.CanPlayerTarget(player))
-                {
-                    player.SelectUI(target);
-                }
-            }
-        }
-
-        protected override void OnDeactivate()
-        {
-            base.OnDeactivate();
-
-            if (GetOwningPlayer() is UIKPlayer player)
-            {
-                foreach (UIKTarget target in GetComponentsInChildren<UIKTarget>())
-                {
-                    // Remove our current selection on this screen
-                    if (player.targetUI == target)
-                    {
-                        player.DeselectUI();
-                        break;
-                    }
-                }
-            }
-        }
-
-
+        
+        
         public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
         {
             return firstTarget?.GetInnerTarget(_direction);

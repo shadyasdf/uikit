@@ -22,7 +22,24 @@ namespace UIKit
         public bool hovered { get; private set; } // Hovered is only used for the KeyboardAndMouse InputDeviceType
         public bool targeted { get; private set; }
         public bool interactable { get; private set; } = true;
+
+        private UIKWidget owningWidget;
         
+
+        protected virtual void OnTransformParentChanged()
+        {
+            owningWidget?.OnActiveChanged.RemoveListener(Widget_OnActiveChanged);
+            owningWidget = transform.parent?.GetComponentInParent<UIKWidget>(true);
+            owningWidget?.OnActiveChanged.AddListener(Widget_OnActiveChanged);
+        }
+
+        protected override void OnPreDestroy()
+        {
+            base.OnPreDestroy();
+            
+            owningWidget?.OnActiveChanged.RemoveListener(Widget_OnActiveChanged);
+        }
+
 
         public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
         {
@@ -148,6 +165,16 @@ namespace UIKit
 
         protected virtual void OnInteractableChanged()
         {
+        }
+
+        private void Widget_OnActiveChanged(bool _active)
+        {
+            if (!_active
+                && GetOwningPlayer() is UIKPlayer player
+                && player.targetUI == this)
+            {
+                player.TryUntargetUI(this);
+            }
         }
     }
 } // UIKit namespace

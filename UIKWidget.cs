@@ -1,9 +1,12 @@
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace UIKit
 {
     public abstract class UIKWidget : UIKElement
     {
+        [HideInInspector] public UnityEvent<bool> OnActiveChanged = new();
+        
         public string widgetName { get; protected set; }
         
         public bool active
@@ -17,7 +20,7 @@ namespace UIKit
                 if (__active != value)
                 {
                     __active = value;
-                    OnActiveChanged();
+                    OnActiveChanged.Invoke(__active);
                 }
             }
         }
@@ -25,6 +28,21 @@ namespace UIKit
         private bool __active = false;
 
         private UIKWidgetStack widgetStack;
+
+
+        protected override void Awake()
+        {
+            base.Awake();
+
+            OnActiveChanged.AddListener(Widget_OnActiveChanged);
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            
+            OnActiveChanged.RemoveListener(Widget_OnActiveChanged);
+        }
 
 
         public void Setup(string _widgetName, UIKWidgetStack _widgetStack)
@@ -60,9 +78,9 @@ namespace UIKit
             active = false;
         }
 
-        protected virtual void OnActiveChanged()
+        private void Widget_OnActiveChanged(bool _active)
         {
-            if (active)
+            if (_active)
             {
                 OnActivate();
             }

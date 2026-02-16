@@ -81,7 +81,7 @@ public class UIKWidgetSwitcher : UIKElement
 
         if (widgets.Count >= currentWidgetIndex)
         {
-            // Active the active one
+            // Activate the active one
             widgets[currentWidgetIndex].gameObject.SetActive(true);
             if (manageActivation)
             {

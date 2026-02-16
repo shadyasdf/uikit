@@ -163,9 +163,7 @@ namespace UIKit
             if (!_player.targetUI) // If we don't have a valid target to navigate from
             {
                 // Handle first target
-                if (_player.canvas?.topScreen?.firstTarget is UIKElement element
-                    && element.GetInnerTarget(_direction) is UIKTarget target
-                    && target.CanPlayerTarget(_player))
+                if (_player.canvas?.GetFirstValidTarget(_player) is UIKTarget target)
                 {
                     return _player.SelectUI(target);
                 }

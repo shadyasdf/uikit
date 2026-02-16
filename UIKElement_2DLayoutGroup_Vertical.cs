@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,17 +32,33 @@ namespace UIKit
                     case UIKInputDirection.Down:
                     case UIKInputDirection.Left:
                     case UIKInputDirection.Right:
-                        if (layoutGroupTransform.GetChild(0).GetComponent<UIKElement>() is UIKElement topElement
-                            && topElement.GetInnerTarget(_direction) is UIKTarget topTarget)
+                        foreach (UIKElement childElement in layoutGroupTransform.GetComponentsInChildren<UIKElement>().ToArray())
                         {
-                            return topTarget;
+                            if (childElement == this)
+                            {
+                                continue;
+                            }
+                            
+                            if (childElement.GetInnerTarget(_direction) is UIKTarget target
+                                && target.interactable)
+                            {
+                                return target;
+                            }
                         }
                         break;
                     case UIKInputDirection.Up:
-                        if (layoutGroupTransform.GetChild(layoutGroupTransform.childCount - 1).GetComponent<UIKElement>() is UIKElement bottomElement
-                            && bottomElement.GetInnerTarget(_direction) is UIKTarget bottomTarget)
+                        foreach (UIKElement childElement in layoutGroupTransform.GetComponentsInChildren<UIKElement>().Reverse().ToArray())
                         {
-                            return bottomTarget;
+                            if (childElement == this)
+                            {
+                                continue;
+                            }
+                            
+                            if (childElement.GetInnerTarget(_direction) is UIKTarget target
+                                && target.interactable)
+                            {
+                                return target;
+                            }
                         }
                         break;
                 }
