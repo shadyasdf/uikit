@@ -24,6 +24,12 @@ namespace UIKit
         {
             base.OnPreConstruct(_isOnValidate);
             
+            // If our TMP settings aren't loaded yet, don't attempt to set text
+            if (TMP_Settings.instance == null)
+            {
+                return;
+            }
+        
             if (_isOnValidate)
             {
                 if (text != null)
