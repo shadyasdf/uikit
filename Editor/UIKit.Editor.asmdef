@@ -1,0 +1,23 @@
+{
+    "name": "UIKit.Editor",
+    "rootNamespace": "UIKit",
+    "references": [
+        "UIKit",
+        "Unity.TextMeshPro",
+        "Unity.InputSystem",
+        "UnityEngine.UI",
+        "Unity.Addressables",
+        "Unity.ResourceManager"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
