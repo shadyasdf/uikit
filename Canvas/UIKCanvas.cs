@@ -168,7 +168,12 @@ namespace UIKit
             OnTopScreenChanged?.Invoke(topScreen);
         }
 
-        public virtual Camera GetCamera()
+        public virtual Camera GetWorldCamera()
+        {
+            return GetComponent<Canvas>()?.worldCamera;
+        }
+
+        public virtual Camera GetUICamera()
         {
             return GetComponent<Canvas>()?.worldCamera;
         }
