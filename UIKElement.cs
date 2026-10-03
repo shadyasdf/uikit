@@ -10,6 +10,26 @@ namespace UIKit
         public UIKElement down;
         public UIKElement right;
         public UIKElement left;
+
+
+        public void Set(UIKInputDirection _direction, UIKElement _element)
+        {
+            switch (_direction)
+            {
+                case UIKInputDirection.Up:
+                    up = _element;
+                    break;
+                case UIKInputDirection.Down:
+                    down = _element;
+                    break;
+                case UIKInputDirection.Right:
+                    right = _element;
+                    break;
+                case UIKInputDirection.Left:
+                    left = _element;
+                    break;
+            }
+        }
     }
     
     public abstract class UIKElement : UIKMonoBehaviour

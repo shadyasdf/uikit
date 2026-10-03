@@ -3,22 +3,22 @@ using UnityEngine.UI;
 
 namespace UIKit
 {
-    [RequireComponent(typeof(VerticalLayoutGroup))]
-    public class UIKElement_2DLayoutGroup_Vertical : UIKElement_2DLayoutGroup_Linear
+    [RequireComponent(typeof(HorizontalLayoutGroup))]
+    public class UIKElement_2DLayoutGroup_Horizontal : UIKElement_2DLayoutGroup_Linear
     {
         protected override LayoutGroup GetLayoutGroup()
         {
-            return GetComponent<VerticalLayoutGroup>();
+            return GetComponent<HorizontalLayoutGroup>();
         }
 
         protected override UIKInputDirection GetForwardDirection()
         {
-            return UIKInputDirection.Down;
+            return UIKInputDirection.Right;
         }
 
         protected override UIKInputDirection GetBackwardDirection()
         {
-            return UIKInputDirection.Up;
+            return UIKInputDirection.Left;
         }
     }
 } // UIKit namespace
