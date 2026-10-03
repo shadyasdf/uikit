@@ -34,7 +34,8 @@ namespace UIKit
                     case UIKInputDirection.Right:
                         foreach (UIKElement childElement in layoutGroupTransform.GetComponentsInChildren<UIKElement>().ToArray())
                         {
-                            if (childElement == this)
+                            if (childElement == this
+                                || childElement.gameObject.IsPendingDestroy())
                             {
                                 continue;
                             }
@@ -49,7 +50,8 @@ namespace UIKit
                     case UIKInputDirection.Up:
                         foreach (UIKElement childElement in layoutGroupTransform.GetComponentsInChildren<UIKElement>().Reverse().ToArray())
                         {
-                            if (childElement == this)
+                            if (childElement == this
+                                || childElement.gameObject.IsPendingDestroy())
                             {
                                 continue;
                             }
@@ -73,7 +75,7 @@ namespace UIKit
             foreach (Transform child in GetLayoutGroup().transform)
             {
                 if (child == null
-                    || child.IsPendingDestroy()
+                    || child.gameObject.IsPendingDestroy()
                     || child.GetComponent<UIKElement>() is not UIKElement element)
                 {
                     continue;
