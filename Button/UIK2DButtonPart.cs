@@ -1,0 +1,51 @@
+namespace UIKit
+{
+    public abstract class UIK2DButtonPart : UIKMonoBehaviour
+    {
+        protected UIK2DButton uik2DButton { get; private set; }
+
+
+        protected override void OnPreConstruct(bool _isOnValidate)
+        {
+            base.OnPreConstruct(_isOnValidate);
+
+            if (!uik2DButton)
+            {
+                uik2DButton = GetComponent<UIK2DButton>();
+            }
+
+            if (!_isOnValidate
+                && uik2DButton)
+            {
+                uik2DButton.OnClickHandled.AddListener(Button_OnClickHandled);
+                uik2DButton.OnTargeted.AddListener(Button_OnTargeted);
+                uik2DButton.OnUntargeted.AddListener(Button_OnUntargeted);
+            }
+        }
+
+        protected override void OnPreDestroy()
+        {
+            base.OnPreDestroy();
+
+            if (uik2DButton)
+            {
+                uik2DButton.OnClickHandled.RemoveListener(Button_OnClickHandled);
+                uik2DButton.OnTargeted.RemoveListener(Button_OnTargeted);
+                uik2DButton.OnUntargeted.RemoveListener(Button_OnUntargeted);
+            }
+        }
+
+
+        protected virtual void Button_OnClickHandled(UIKEventData _eventData)
+        {
+        }
+
+        protected virtual void Button_OnTargeted(UIKPlayer _player)
+        {
+        }
+
+        protected virtual void Button_OnUntargeted(UIKPlayer _player)
+        {
+        }
+    }
+} // UIKit namespace

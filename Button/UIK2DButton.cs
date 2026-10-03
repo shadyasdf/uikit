@@ -10,6 +10,7 @@ namespace UIKit
     public class UIK2DButton : UIKTarget, UIKButton
     {
         [SerializeField] public UnityEvent<UIKEventData> OnClicked = new();
+        [HideInInspector] public UnityEvent<UIKEventData> OnClickHandled = new();
 
         [SerializeField] protected UIKActionObjectReference clickActionObject;
         [SerializeField] protected UIKInputAction clickInputAction;
@@ -84,6 +85,8 @@ namespace UIKit
 
         public void HandleClick(UIKEventData _eventData)
         {
+            OnClickHandled.Invoke(_eventData);
+
             if (clickActionObject != null
                 && clickActionObject.GetActionObject(GetOwningPlayer()) is UIKActionObject actionObject)
             {
@@ -109,6 +112,11 @@ namespace UIKit
             {
                 eventData.pressingPlayer?.TryUntargetUI(this);
             }
+        }
+
+        public UIKActionObjectReference GetClickActionObject()
+        {
+            return clickActionObject;
         }
 
         public UIKInputAction GetClickAction()

@@ -12,7 +12,7 @@ namespace UIKit
     }
     
     [RequireComponent(typeof(Button))]
-    public class UIK2DButtonStyle : UIKMonoBehaviour
+    public class UIK2DButtonStyle : UIK2DButtonPart
     {
         [SerializeField] protected UIKStyleTransition transition = UIKStyleTransition.None;
         [SerializeField] protected Graphic transitionGraphic;
@@ -20,7 +20,6 @@ namespace UIKit
         [SerializeField] protected Color targetedColor;
 
         protected Button button;
-        protected UIK2DButton uik2DButton;
         
         
         protected override void OnPreConstruct(bool _isOnValidate)
@@ -32,11 +31,6 @@ namespace UIKit
                 button = GetComponent<Button>();
             }
 
-            if (!uik2DButton)
-            {
-                uik2DButton = GetComponent<UIK2DButton>();
-            }
-
             if (_isOnValidate)
             {
                 if (button.transition != Selectable.Transition.None)
@@ -45,23 +39,21 @@ namespace UIKit
                 }
             }
 
-            if (!_isOnValidate)
-            {
-                uik2DButton.OnTargeted.AddListener(OnTargeted);
-                uik2DButton.OnUntargeted.AddListener(OnUntargeted);
-            }
-            
             UpdateTransitionGraphic();
         }
 
 
-        protected virtual void OnTargeted(UIKPlayer _player)
+        protected override void Button_OnTargeted(UIKPlayer _player)
         {
+            base.Button_OnTargeted(_player);
+
             UpdateTransitionGraphic();
         }
         
-        protected virtual void OnUntargeted(UIKPlayer _player)
+        protected override void Button_OnUntargeted(UIKPlayer _player)
         {
+            base.Button_OnUntargeted(_player);
+
             UpdateTransitionGraphic();
         }
 
@@ -79,7 +71,8 @@ namespace UIKit
 
         private void UpdateTransitionGraphic()
         {
-            if (transitionGraphic)
+            if (transitionGraphic
+                && uik2DButton)
             {
                 if (uik2DButton.targeted)
                 {
