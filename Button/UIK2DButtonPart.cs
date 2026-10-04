@@ -20,6 +20,7 @@ namespace UIKit
                 uik2DButton.OnClickHandled.AddListener(Button_OnClickHandled);
                 uik2DButton.OnTargeted.AddListener(Button_OnTargeted);
                 uik2DButton.OnUntargeted.AddListener(Button_OnUntargeted);
+                uik2DButton.OnLockedChanged.AddListener(Button_OnLockedChanged);
             }
         }
 
@@ -32,6 +33,7 @@ namespace UIKit
                 uik2DButton.OnClickHandled.RemoveListener(Button_OnClickHandled);
                 uik2DButton.OnTargeted.RemoveListener(Button_OnTargeted);
                 uik2DButton.OnUntargeted.RemoveListener(Button_OnUntargeted);
+                uik2DButton.OnLockedChanged.RemoveListener(Button_OnLockedChanged);
             }
         }
 
@@ -50,6 +52,10 @@ namespace UIKit
         }
 
         protected virtual void Button_OnUntargeted(UIKPlayer _player)
+        {
+        }
+
+        protected virtual void Button_OnLockedChanged(bool _locked)
         {
         }
     }

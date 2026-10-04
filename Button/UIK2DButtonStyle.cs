@@ -20,6 +20,8 @@ namespace UIKit
         [SerializeField] protected Color targetedColor;
         [SerializeField] protected bool useCheckedColor;
         [SerializeField] protected Color checkedColor;
+        [SerializeField] protected bool useLockedColor;
+        [SerializeField] protected Color lockedColor;
 
         protected Button button;
         protected UIK2DButtonCheckbox checkbox;
@@ -65,6 +67,13 @@ namespace UIKit
             UpdateTransitionGraphic();
         }
 
+        protected override void Button_OnLockedChanged(bool _locked)
+        {
+            base.Button_OnLockedChanged(_locked);
+
+            UpdateTransitionGraphic();
+        }
+
         public void SetNormalColor(Color _color)
         {
             normalColor = _color;
@@ -91,6 +100,11 @@ namespace UIKit
                 if (uik2DButton.targeted)
                 {
                     transitionGraphic.color = targetedColor;
+                }
+                else if (useLockedColor
+                    && uik2DButton.locked)
+                {
+                    transitionGraphic.color = lockedColor;
                 }
                 else if (useCheckedColor
                     && checkbox

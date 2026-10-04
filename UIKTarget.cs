@@ -17,11 +17,13 @@ namespace UIKit
     {
         [SerializeField] public UnityEvent<UIKPlayer> OnTargeted = new();
         [SerializeField] public UnityEvent<UIKPlayer> OnUntargeted = new();
+        [HideInInspector] public UnityEvent<bool> OnLockedChanged = new();
         
         [HideInInspector] public List<UIKPlayer> targetedByPlayers = new();
         public bool hovered { get; private set; } // Hovered is only used for the KeyboardAndMouse InputDeviceType
         public bool targeted { get; private set; }
         public bool interactable { get; private set; } = true;
+        public bool locked { get; private set; }
 
         private UIKWidget owningWidget;
         
@@ -89,7 +91,8 @@ namespace UIKit
 
         public virtual bool CanPlayerSubmit(UIKPlayer _player)
         {
-            if (!CanPlayerInteract(_player))
+            if (!CanPlayerInteract(_player)
+                || locked)
             {
                 return false;
             }
@@ -170,6 +173,17 @@ namespace UIKit
 
         protected virtual void OnInteractableChanged()
         {
+        }
+
+        public void SetLocked(bool _locked)
+        {
+            if (locked == _locked)
+            {
+                return;
+            }
+
+            locked = _locked;
+            OnLockedChanged.Invoke(locked);
         }
 
         private void Widget_OnActiveChanged(bool _active)

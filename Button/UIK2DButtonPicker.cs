@@ -69,15 +69,29 @@ namespace UIKit
             SelectRelative(1);
         }
 
+        protected override void Button_OnLockedChanged(bool _locked)
+        {
+            base.Button_OnLockedChanged(_locked);
+
+            previousButton?.SetLocked(_locked);
+            nextButton?.SetLocked(_locked);
+        }
+
         public override bool HandleButtonNavigation(UIKPlayer _player, UIKInputDirection _direction)
         {
             switch (_direction)
             {
                 case UIKInputDirection.Left:
-                    SelectRelative(-1);
+                    if (!uik2DButton.locked)
+                    {
+                        SelectRelative(-1);
+                    }
                     return true;
                 case UIKInputDirection.Right:
-                    SelectRelative(1);
+                    if (!uik2DButton.locked)
+                    {
+                        SelectRelative(1);
+                    }
                     return true;
             }
 

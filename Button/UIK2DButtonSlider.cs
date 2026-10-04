@@ -57,10 +57,16 @@ namespace UIKit
             switch (_direction)
             {
                 case UIKInputDirection.Left:
-                    SetValue(value - step);
+                    if (!uik2DButton.locked)
+                    {
+                        SetValue(value - step);
+                    }
                     return true;
                 case UIKInputDirection.Right:
-                    SetValue(value + step);
+                    if (!uik2DButton.locked)
+                    {
+                        SetValue(value + step);
+                    }
                     return true;
             }
 
@@ -114,6 +120,7 @@ namespace UIKit
         protected void SetValueFromPointer(PointerEventData _eventData)
         {
             if (!track
+                || uik2DButton.locked
                 || !RectTransformUtility.ScreenPointToLocalPointInRectangle(track, _eventData.position, _eventData.pressEventCamera, out Vector2 localPoint))
             {
                 return;
