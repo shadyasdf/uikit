@@ -79,14 +79,10 @@ namespace UIKit
             text.SetText(displayActionText);
             
             // Update icon
-            if (image != null
-                && displayInputAction != null)
+            if (image != null)
             {
-                image.sprite = GetCanvas().GetInputActionIcon(displayInputAction);
-            }
-            else
-            {
-                image.sprite = null;
+                image.sprite = displayInputAction != null ? GetCanvas().GetInputActionIcon(displayInputAction) : null;
+                image.enabled = image.sprite;
             }
         }
     }
