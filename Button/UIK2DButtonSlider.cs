@@ -82,6 +82,12 @@ namespace UIKit
             RefreshVisuals();
         }
 
+        public void SetValueFormat(string _valueFormat)
+        {
+            valueFormat = _valueFormat;
+            RefreshVisuals();
+        }
+
         public virtual void SetValue(float _value, bool _notify = true)
         {
             _value = Quantize(_value);
