@@ -150,6 +150,14 @@ namespace UIKit
             targeted = true;
             
             OnTargeted?.Invoke(_player);
+
+            if (transform.parent)
+            {
+                foreach (UIKElement ancestor in transform.parent.GetComponentsInParent<UIKElement>(true))
+                {
+                    ancestor.HandleDescendantTargeted(this, _player);
+                }
+            }
         }
 
         public void HandleUntargeted(UIKPlayer _player)

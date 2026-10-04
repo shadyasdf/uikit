@@ -82,5 +82,9 @@ namespace UIKit
         }
         
         public abstract UIKTarget GetInnerTarget(UIKInputDirection _direction);
+
+        public virtual void HandleDescendantTargeted(UIKTarget _target, UIKPlayer _player)
+        {
+        }
     }
 } // UIKit namespace
