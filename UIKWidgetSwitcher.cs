@@ -1,98 +1,121 @@
 using System.Collections.Generic;
-using UIKit;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class UIKWidgetSwitcher : UIKElement
+namespace UIKit
 {
-    [HideInInspector] public UnityEvent<UIKWidget> OnCurrentWidgetChanged = new();
-
-    [SerializeField] private int currentWidgetIndex;
-    [SerializeField] protected bool manageActivation = true;
-
-
-    protected override void Awake()
+    public class UIKWidgetSwitcher : UIKElement
     {
-        base.Awake();
-        
-        UpdateWidgetsInSwitcher();
-    }
+        [HideInInspector] public UnityEvent<UIKWidget> OnCurrentWidgetChanged = new();
+
+        [SerializeField] private int currentWidgetIndex;
+        [SerializeField] protected bool manageActivation = true;
 
 
-    public void SetCurrentWidget(int _index)
-    {
-        if (transform.childCount < _index
-            || _index < 0)
+        protected override void Awake()
         {
-            Debug.LogError("Index is out of range in switcher");
-            
-            return;
+            base.Awake();
+
+            Refresh();
         }
 
-        if (currentWidgetIndex == _index)
+
+        public void SetCurrentWidget(int _index)
         {
-            return;
-        }
-        
-        currentWidgetIndex = _index;
-        
-        UpdateWidgetsInSwitcher();
-    }
-
-    public int GetCurrentWidgetIndex()
-    {
-        return currentWidgetIndex;
-    }
-    
-    public UIKWidget GetCurrentWidget()
-    {
-        return transform.GetChild(currentWidgetIndex)?.GetComponent<UIKWidget>();
-    }
-
-    public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
-    {
-        return GetCurrentWidget()?.GetInnerTarget(_direction);
-    }
-
-    protected virtual void UpdateWidgetsInSwitcher()
-    {
-        // Only consider widget children
-        List<UIKWidget> widgets = new();
-        foreach (Transform child in transform)
-        {
-            if (child.GetComponent<UIKWidget>() is UIKWidget widget)
+            if (_index < 0
+                || _index >= GetWidgets().Count)
             {
-                widgets.Add(widget);
+                Debug.LogError("Index is out of range in switcher");
+
+                return;
             }
-        }
-        
-        // Deactivate the inactive ones first
-        for (int i = 0; i < widgets.Count; i++)
-        {
-            if (i != currentWidgetIndex)
+
+            if (currentWidgetIndex == _index)
             {
-                widgets[i].gameObject.SetActive(false);
-                if (manageActivation)
+                return;
+            }
+
+            currentWidgetIndex = _index;
+
+            Refresh();
+        }
+
+        public void SetCurrentWidget(UIKWidget _widget)
+        {
+            int index = GetWidgets().IndexOf(_widget);
+            if (index < 0)
+            {
+                Debug.LogError("Widget is not a child of this switcher");
+
+                return;
+            }
+
+            SetCurrentWidget(index);
+        }
+
+        public int GetCurrentWidgetIndex()
+        {
+            return currentWidgetIndex;
+        }
+
+        public UIKWidget GetCurrentWidget()
+        {
+            List<UIKWidget> widgets = GetWidgets();
+            return currentWidgetIndex >= 0 && currentWidgetIndex < widgets.Count ? widgets[currentWidgetIndex] : null;
+        }
+
+        public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
+        {
+            return GetCurrentWidget()?.GetInnerTarget(_direction);
+        }
+
+        public virtual void Refresh()
+        {
+            List<UIKWidget> widgets = GetWidgets();
+
+            // Deactivate the inactive ones first
+            for (int i = 0; i < widgets.Count; i++)
+            {
+                if (i != currentWidgetIndex)
                 {
-                    widgets[i].Deactivate();
+                    widgets[i].gameObject.SetActive(false);
+                    if (manageActivation)
+                    {
+                        widgets[i].Deactivate();
+                    }
                 }
             }
+
+            if (currentWidgetIndex >= 0
+                && currentWidgetIndex < widgets.Count)
+            {
+                widgets[currentWidgetIndex].gameObject.SetActive(true);
+                if (manageActivation)
+                {
+                    widgets[currentWidgetIndex].Activate();
+                }
+
+                OnCurrentWidgetChanged?.Invoke(widgets[currentWidgetIndex]);
+            }
+            else
+            {
+                OnCurrentWidgetChanged?.Invoke(null);
+            }
         }
 
-        if (widgets.Count >= currentWidgetIndex)
+        protected List<UIKWidget> GetWidgets()
         {
-            // Activate the active one
-            widgets[currentWidgetIndex].gameObject.SetActive(true);
-            if (manageActivation)
+            List<UIKWidget> widgets = new();
+            foreach (Transform child in transform)
             {
-                widgets[currentWidgetIndex].Activate();
+                if (!child.gameObject.IsPendingDestroy()
+                    && child.GetComponent<UIKWidget>() is UIKWidget widget)
+                {
+                    widgets.Add(widget);
+                }
             }
-            
-            OnCurrentWidgetChanged?.Invoke(widgets[currentWidgetIndex]);
-        }
-        else
-        {
-            OnCurrentWidgetChanged?.Invoke(null);
+
+            return widgets;
         }
     }
-}
+} // UIKit namespace
