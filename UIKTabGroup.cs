@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.InputSystem;
 
 namespace UIKit
 {
@@ -13,15 +12,13 @@ namespace UIKit
         public UIKWidget page;
     }
 
-    public class UIKTabGroup : UIKElement, UIKInputActionHandler
+    public class UIKTabGroup : UIKElement
     {
         [HideInInspector] public UnityEvent<int> OnCurrentTabChanged = new();
 
         [SerializeField] protected UIKElement_2DLayoutGroup tabButtonGroup;
         [SerializeField] protected UIKWidgetSwitcher pageSwitcher;
         [SerializeField] protected UIKInputDirection pagesDirectionFromTabs = UIKInputDirection.Down;
-        [SerializeField] protected UIKInputAction nextTabInputAction;
-        [SerializeField] protected UIKInputAction previousTabInputAction;
         [SerializeField] protected bool tabSwitchingWraps = true;
         [SerializeField] protected List<UIKTab> tabs = new();
 
@@ -126,6 +123,18 @@ namespace UIKit
             OnCurrentTabChanged.Invoke(currentTabIndex);
         }
 
+        public bool CanSelectTabRelative(int _offset)
+        {
+            if (tabs.Count < 2)
+            {
+                return false;
+            }
+
+            int index = currentTabIndex + _offset;
+            return tabSwitchingWraps
+                || (index >= 0 && index < tabs.Count);
+        }
+
         public void SelectTabRelative(int _offset)
         {
             if (tabs.Count == 0)
@@ -140,29 +149,6 @@ namespace UIKit
             }
 
             SelectTab(Mathf.Clamp(index, 0, tabs.Count - 1));
-        }
-
-        public bool HandleInputAction(InputAction.CallbackContext _context)
-        {
-            if (!_context.action.WasPressedThisFrame()
-                || !_context.action.triggered)
-            {
-                return false;
-            }
-
-            if (nextTabInputAction == _context.action)
-            {
-                SelectTabRelative(1);
-                return true;
-            }
-
-            if (previousTabInputAction == _context.action)
-            {
-                SelectTabRelative(-1);
-                return true;
-            }
-
-            return false;
         }
 
         public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
