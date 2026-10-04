@@ -31,6 +31,10 @@ namespace UIKit
         [SerializeField] protected UIKInputAction leftClickInputAction;
         [SerializeField] protected UIKInputAction uiSubmitInputAction;
         [SerializeField] protected UIKInputAction uiMoveInputAction;
+        [SerializeField] protected float movePressThreshold = 0.5f;
+        [SerializeField] protected float moveReleaseThreshold = 0.3f;
+        [SerializeField] protected float moveRepeatDelay = 0.4f;
+        [SerializeField] protected float moveRepeatInterval = 0.1f;
         [SerializeField] public List<UIKScreenInputTypeActionMap> screenInputTypeActionMaps = new();
         [SerializeField] public List<UIKInputDeviceInputIconDatabase> inputDeviceInputIconDatabases = new();
         
@@ -39,6 +43,8 @@ namespace UIKit
 
         public UIKScreen topScreen { get; private set; }
         private List<InputControl> consumedInputControlsThisFrame = new();
+        private UIKInputDirection? heldMoveDirection;
+        private float nextMoveRepeatTime;
         
         
         protected virtual void Awake()
@@ -70,7 +76,9 @@ namespace UIKit
             {
                 player.TryTargetUI(target);
             }
-            
+
+            UpdateHeldMove();
+
             consumedInputControlsThisFrame.Clear();
         }
 
@@ -350,10 +358,9 @@ namespace UIKit
                     return true;
                 }
             }
-            else if (uiMoveInputAction == _context.action
-                && _context.action.WasPerformedThisFrame())
+            else if (uiMoveInputAction == _context.action)
             {
-                if (GetOwningPlayer().TryNavigateUIByDirection(_context.ReadValue<Vector2>()))
+                if (HandleMoveInput(_context.ReadValue<Vector2>()))
                 {
                     ConsumeInputControl(_context);
                     
@@ -376,6 +383,56 @@ namespace UIKit
             }
 
             return false;
+        }
+
+        protected virtual bool HandleMoveInput(Vector2 _value)
+        {
+            if (heldMoveDirection.HasValue)
+            {
+                if (_value.magnitude < moveReleaseThreshold)
+                {
+                    heldMoveDirection = null;
+                    return false;
+                }
+
+                if (_value.GetInputDirection() == heldMoveDirection.Value)
+                {
+                    return true;
+                }
+            }
+            else if (_value.magnitude < movePressThreshold)
+            {
+                return false;
+            }
+
+            heldMoveDirection = _value.GetInputDirection();
+            nextMoveRepeatTime = Time.unscaledTime + moveRepeatDelay;
+
+            return GetOwningPlayer() is UIKPlayer player
+                && player.TryNavigateUIByDirection(heldMoveDirection.Value);
+        }
+
+        protected virtual void UpdateHeldMove()
+        {
+            if (!heldMoveDirection.HasValue)
+            {
+                return;
+            }
+
+            if (GetOwningPlayer() is not UIKPlayer player
+                || player.playerInput?.actions?.FindAction($"{uiMoveInputAction.actionMap}/{uiMoveInputAction.action}") is not InputAction moveAction
+                || !moveAction.enabled
+                || moveAction.ReadValue<Vector2>().magnitude < moveReleaseThreshold)
+            {
+                heldMoveDirection = null;
+                return;
+            }
+
+            if (Time.unscaledTime >= nextMoveRepeatTime)
+            {
+                nextMoveRepeatTime = Time.unscaledTime + moveRepeatInterval;
+                player.TryNavigateUIByDirection(heldMoveDirection.Value);
+            }
         }
 
         public Sprite GetInputActionIcon(InputAction _inputAction)
