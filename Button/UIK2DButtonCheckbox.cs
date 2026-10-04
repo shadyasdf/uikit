@@ -18,7 +18,11 @@ namespace UIKit
         {
             base.OnPreConstruct(_isOnValidate);
 
-            isChecked = checkedByDefault;
+            if (!_isOnValidate
+                || !Application.isPlaying)
+            {
+                isChecked = checkedByDefault;
+            }
             RefreshCheckmark();
         }
 
