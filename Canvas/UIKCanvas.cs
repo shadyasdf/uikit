@@ -205,7 +205,9 @@ namespace UIKit
 
         public virtual UIKTarget GetFirstValidTarget(UIKPlayer _player)
         {
-            if (topScreen?.firstTarget is UIKElement element
+            if (topScreen
+                && topScreen.firstTarget is UIKElement element
+                && element
                 && element.GetInnerTarget(UIKInputDirection.Down) is UIKTarget target
                 && target.CanPlayerTarget(_player))
             {
