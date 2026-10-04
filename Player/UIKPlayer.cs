@@ -172,6 +172,11 @@ namespace UIKit
                 return false;
             }
 
+            if (_player.targetUI.HandleNavigation(_player, _direction))
+            {
+                return true;
+            }
+
             UIKTarget foundUI = _player.targetUI.GetOuterTarget(_direction);
             if (foundUI != null)
             {

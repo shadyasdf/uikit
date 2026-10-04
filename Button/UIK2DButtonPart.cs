@@ -36,6 +36,11 @@ namespace UIKit
         }
 
 
+        public virtual bool HandleButtonNavigation(UIKPlayer _player, UIKInputDirection _direction)
+        {
+            return false;
+        }
+
         protected virtual void Button_OnClickHandled(UIKEventData _eventData)
         {
         }

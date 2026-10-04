@@ -10,6 +10,7 @@ namespace UIKit
 
         [SerializeField] protected Graphic checkmark;
         [SerializeField] protected bool checkedByDefault;
+        [SerializeField] protected bool toggleOnClick = true;
 
         public bool isChecked { get; private set; }
 
@@ -30,7 +31,10 @@ namespace UIKit
         {
             base.Button_OnClickHandled(_eventData);
 
-            SetChecked(!isChecked);
+            if (toggleOnClick)
+            {
+                SetChecked(!isChecked);
+            }
         }
 
 
@@ -56,6 +60,8 @@ namespace UIKit
             {
                 checkmark.enabled = isChecked;
             }
+
+            GetComponent<UIK2DButtonStyle>()?.UpdateTransitionGraphic();
         }
     }
 } // UIKit namespace

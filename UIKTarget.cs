@@ -45,6 +45,11 @@ namespace UIKit
         {
             return this;
         }
+
+        public virtual bool HandleNavigation(UIKPlayer _player, UIKInputDirection _direction)
+        {
+            return false;
+        }
         
         public virtual bool CanPlayerInteract(UIKPlayer _player)
         {

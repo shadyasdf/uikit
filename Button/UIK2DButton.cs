@@ -114,6 +114,19 @@ namespace UIKit
             }
         }
 
+        public override bool HandleNavigation(UIKPlayer _player, UIKInputDirection _direction)
+        {
+            foreach (UIK2DButtonPart part in GetComponents<UIK2DButtonPart>())
+            {
+                if (part.HandleButtonNavigation(_player, _direction))
+                {
+                    return true;
+                }
+            }
+
+            return base.HandleNavigation(_player, _direction);
+        }
+
         public UIKActionObjectReference GetClickActionObject()
         {
             return clickActionObject;
