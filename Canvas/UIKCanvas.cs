@@ -302,7 +302,7 @@ namespace UIKit
                 UpdateScreenStacks();
             }
             
-            return screenStackByLayer[_layer];
+            return screenStackByLayer[_layer] ? screenStackByLayer[_layer] : null;
         }
         
         private void UpdateScreenStacks()
@@ -336,7 +336,7 @@ namespace UIKit
 
         private IEnumerable<UIKScreenStack> GetScreenStacksOrdered()
         {
-            return screenStackByLayer.OrderByDescending(p => p.Key).Select(p => p.Value);
+            return screenStackByLayer.OrderByDescending(p => p.Key).Select(p => p.Value).Where(s => s);
         }
         
         public virtual bool HandleInputAction(InputAction.CallbackContext _context)
