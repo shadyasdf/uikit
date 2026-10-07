@@ -265,6 +265,19 @@ namespace UIKit
             }
         }
 
+        public void PopAllScreens()
+        {
+            foreach (UIKScreenStack screenStack in GetScreenStacksOrdered().ToArray())
+            {
+                foreach (UIKScreen screenInstance in screenStack.GetWidgetsOrdered().OfType<UIKScreen>().ToArray())
+                {
+                    OnPreScreenPopped(screenInstance);
+                    screenStack.PopFromStack(screenInstance);
+                    OnPostScreenPopped();
+                }
+            }
+        }
+
         protected virtual void OnPostScreenPushed(UIKScreen _screen)
         {
         }
