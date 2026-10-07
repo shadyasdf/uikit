@@ -2,14 +2,13 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.UI;
 
 namespace UIKit
 {
     public class UIK2DActionDisplay : UIKMonoBehaviour
     {
         [SerializeField] protected TMP_Text text;
-        [SerializeField] protected Image image;
+        [SerializeField] protected UIK2DInputIcon icon;
         
         [Space(10)]
         [Header("Editor Preview Only")]
@@ -37,9 +36,9 @@ namespace UIKit
                     text.SetText(editorPreviewText);
                 }
 
-                if (image != null)
+                if (icon != null)
                 {
-                    image.sprite = editorPreviewIcon;
+                    icon.SetIcon(editorPreviewIcon);
                 }
             }
         }
@@ -79,10 +78,9 @@ namespace UIKit
             text.SetText(displayActionText);
             
             // Update icon
-            if (image != null)
+            if (icon != null)
             {
-                image.sprite = displayInputAction != null ? GetCanvas().GetInputActionIcon(displayInputAction) : null;
-                image.enabled = image.sprite;
+                icon.SetInputAction(displayInputAction);
             }
         }
     }

@@ -464,21 +464,27 @@ namespace UIKit
                     
                     if (player.inputDeviceType.IsFlagSet(bindingInputDevice))
                     {
-                        foreach (UIKInputDeviceInputIconDatabase inputIconDatabase in inputDeviceInputIconDatabases)
-                        {
-                            if (inputIconDatabase.inputDevice.IsFlagSet(bindingInputDevice))
-                            {
-                                if (inputIconDatabase.inputIconDatabase.GetIcon(inputBinding.effectivePath) is Sprite sprite)
-                                {
-                                    return sprite;
-                                }
-                                
-                                break;
-                            }
-                        }
-                        
-                        break;
+                        return GetInputBindingIcon(path);
                     }
+                }
+            }
+
+            return null;
+        }
+
+        public Sprite GetInputBindingIcon(string _bindingPath)
+        {
+            if (string.IsNullOrEmpty(_bindingPath))
+            {
+                return null;
+            }
+
+            UIKInputDevice bindingInputDevice = UIKInputExtensions.GetInputDeviceFromString(_bindingPath.Split(">")[0].TrimStart('<'));
+            foreach (UIKInputDeviceInputIconDatabase inputIconDatabase in inputDeviceInputIconDatabases)
+            {
+                if (inputIconDatabase.inputDevice.IsFlagSet(bindingInputDevice))
+                {
+                    return inputIconDatabase.inputIconDatabase.GetIcon(_bindingPath);
                 }
             }
 
