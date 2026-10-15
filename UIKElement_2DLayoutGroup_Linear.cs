@@ -52,6 +52,7 @@ namespace UIKit
             foreach (Transform child in GetLayoutGroup().transform)
             {
                 if (child == null
+                    || !child.gameObject.activeSelf
                     || child.gameObject.IsPendingDestroy()
                     || child.GetComponent<UIKElement>() is not UIKElement element)
                 {
