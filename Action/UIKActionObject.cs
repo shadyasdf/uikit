@@ -170,7 +170,16 @@ namespace UIKit
         static UIKActionObjectReflector()
         {
             actionObjectTypes.Clear();
-            
+
+#if UNITY_EDITOR
+            foreach (Type type in UnityEditor.TypeCache.GetTypesDerivedFrom<UIKActionObject>())
+            {
+                if (!type.IsAbstract)
+                {
+                    actionObjectTypes.Add(type);
+                }
+            }
+#else
             foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 foreach (Type type in assembly.GetTypes())
@@ -182,6 +191,10 @@ namespace UIKit
                     }
                 }
             }
+#endif
+
+            // Editor and builds enumerate in different orders, so sort for a stable result
+            actionObjectTypes.Sort((_a, _b) => string.CompareOrdinal(_a.FullName, _b.FullName));
         }
         
         
