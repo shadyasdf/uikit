@@ -79,10 +79,43 @@ namespace UIKit
             return tabs.Count;
         }
 
+        public int GetTabIndex(UIKWidget _page)
+        {
+            return tabs.FindIndex(t => t.page == _page);
+        }
+
+        public bool IsTabVisible(int _index)
+        {
+            return _index >= 0
+                && _index < tabs.Count
+                && tabs[_index].button
+                && tabs[_index].button.gameObject.activeSelf;
+        }
+
+        public void SetTabVisible(int _index, bool _visible)
+        {
+            if (_index < 0
+                || _index >= tabs.Count
+                || !tabs[_index].button
+                || IsTabVisible(_index) == _visible)
+            {
+                return;
+            }
+
+            tabButtonGroup.SetTargetVisible(tabs[_index].button, _visible);
+
+            if (!_visible
+                && _index == currentTabIndex)
+            {
+                SelectTab(FindTabRelative(1));
+            }
+        }
+
         public void SelectTab(int _index)
         {
             if (_index < 0
-                || _index >= tabs.Count)
+                || _index >= tabs.Count
+                || !IsTabVisible(_index))
             {
                 return;
             }
@@ -125,30 +158,40 @@ namespace UIKit
 
         public bool CanSelectTabRelative(int _offset)
         {
-            if (tabs.Count < 2)
-            {
-                return false;
-            }
-
-            int index = currentTabIndex + _offset;
-            return tabSwitchingWraps
-                || (index >= 0 && index < tabs.Count);
+            return FindTabRelative(_offset) >= 0;
         }
 
         public void SelectTabRelative(int _offset)
         {
-            if (tabs.Count == 0)
+            SelectTab(FindTabRelative(_offset));
+        }
+
+        // Hidden tabs are stepped over; -1 when there is no other visible tab that far away
+        protected int FindTabRelative(int _offset)
+        {
+            int step = Math.Sign(_offset);
+            int remaining = Math.Abs(_offset);
+            int index = currentTabIndex;
+            for (int i = 0; i < tabs.Count * remaining && remaining > 0; i++)
             {
-                return;
+                index += step;
+                if (tabSwitchingWraps)
+                {
+                    index = ((index % tabs.Count) + tabs.Count) % tabs.Count;
+                }
+                else if (index < 0
+                    || index >= tabs.Count)
+                {
+                    return -1;
+                }
+
+                if (IsTabVisible(index))
+                {
+                    remaining--;
+                }
             }
 
-            int index = currentTabIndex + _offset;
-            if (tabSwitchingWraps)
-            {
-                index = ((index % tabs.Count) + tabs.Count) % tabs.Count;
-            }
-
-            SelectTab(Mathf.Clamp(index, 0, tabs.Count - 1));
+            return remaining == 0 && index != currentTabIndex ? index : -1;
         }
 
         public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
