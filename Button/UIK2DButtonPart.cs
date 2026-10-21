@@ -43,6 +43,11 @@ namespace UIKit
             return false;
         }
 
+        public virtual bool HandleButtonClickDeferred(UIKEventData _eventData)
+        {
+            return false;
+        }
+
         protected virtual void Button_OnClickHandled(UIKEventData _eventData)
         {
         }

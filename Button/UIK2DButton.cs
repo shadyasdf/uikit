@@ -85,6 +85,19 @@ namespace UIKit
 
         public void HandleClick(UIKEventData _eventData)
         {
+            foreach (UIK2DButtonPart part in GetComponents<UIK2DButtonPart>())
+            {
+                if (part.HandleButtonClickDeferred(_eventData))
+                {
+                    return;
+                }
+            }
+
+            CompleteClick(_eventData);
+        }
+
+        public void CompleteClick(UIKEventData _eventData)
+        {
             OnClickHandled.Invoke(_eventData);
 
             if (clickActionObject != null

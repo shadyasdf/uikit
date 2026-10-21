@@ -278,6 +278,20 @@ namespace UIKit
             return true;
         }
         
+        public static void ForceUntargetUI(UIKPlayer _player, UIKTarget _target)
+        {
+            if (_target.targetedByPlayers.RemoveAll(p => p == _player) > 0)
+            {
+                _target.HandleUntargeted(_player);
+            }
+
+            if (_player.targetUI == _target)
+            {
+                _player.targetUI = null;
+                _player.OnTargetUIChanged(_target, _player.targetUI);
+            }
+        }
+
         /// <summary>
         /// Have this function return the result of UIKPlayer.TrySubmitUI(this, _targetable)
         /// </summary>

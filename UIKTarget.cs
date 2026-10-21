@@ -42,6 +42,12 @@ namespace UIKit
             owningWidget?.OnActiveChanged.RemoveListener(Widget_OnActiveChanged);
         }
 
+        // Hidden objects never get the pointer exit, so a stale hover would swallow the next enter when shown again
+        protected virtual void OnDisable()
+        {
+            hovered = false;
+        }
+
 
         public override UIKTarget GetInnerTarget(UIKInputDirection _direction)
         {
@@ -112,11 +118,6 @@ namespace UIKit
 
         public virtual void OnPointerExit(PointerEventData eventData)
         {
-            if (!interactable)
-            {
-                return;
-            }
-            
             SetHovered(false);
         }
         
@@ -175,7 +176,17 @@ namespace UIKit
             }
             
             interactable = _interactable;
-            
+
+            // A target that can't be interacted with can't be untargeted normally either, which would trap the player's focus on it
+            if (!interactable)
+            {
+                hovered = false;
+                foreach (UIKPlayer player in new List<UIKPlayer>(targetedByPlayers))
+                {
+                    UIKPlayer.ForceUntargetUI(player, this);
+                }
+            }
+
             OnInteractableChanged();
         }
 
