@@ -111,11 +111,35 @@ namespace UIKit
             }
         }
 
+        public bool IsTabSelectable(int _index)
+        {
+            return IsTabVisible(_index)
+                && !tabs[_index].button.locked;
+        }
+
+        public void SetTabLocked(int _index, bool _locked)
+        {
+            if (_index < 0
+                || _index >= tabs.Count
+                || !tabs[_index].button)
+            {
+                return;
+            }
+
+            tabs[_index].button.SetLocked(_locked);
+
+            if (_locked
+                && _index == currentTabIndex)
+            {
+                SelectTab(FindTabRelative(1));
+            }
+        }
+
         public void SelectTab(int _index)
         {
             if (_index < 0
                 || _index >= tabs.Count
-                || !IsTabVisible(_index))
+                || !IsTabSelectable(_index))
             {
                 return;
             }
@@ -166,7 +190,7 @@ namespace UIKit
             SelectTab(FindTabRelative(_offset));
         }
 
-        // Hidden tabs are stepped over; -1 when there is no other visible tab that far away
+        // Hidden and locked tabs are stepped over; -1 when there is no other selectable tab that far away
         protected int FindTabRelative(int _offset)
         {
             int step = Math.Sign(_offset);
@@ -185,7 +209,7 @@ namespace UIKit
                     return -1;
                 }
 
-                if (IsTabVisible(index))
+                if (IsTabSelectable(index))
                 {
                     remaining--;
                 }
