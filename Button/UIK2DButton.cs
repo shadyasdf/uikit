@@ -17,6 +17,7 @@ namespace UIKit
         
         public UIK2DButtonStyle style { get; private set; }
         protected Button button { get; private set; }
+        protected virtual bool registersAsScreenButton => true;
         
 
         protected override void OnPreConstruct(bool _isOnValidate)
@@ -40,7 +41,8 @@ namespace UIKit
 
             style = GetComponent<UIK2DButtonStyle>();
 
-            if (!_isOnValidate)
+            if (!_isOnValidate
+                && registersAsScreenButton)
             {
                 if (GetComponentInParent<UIKScreen>(true) is UIKScreen screen)
                 {
@@ -53,7 +55,8 @@ namespace UIKit
         {
             base.OnPreDestroy();
             
-            if (GetComponentInParent<UIKScreen>(true) is UIKScreen screen)
+            if (registersAsScreenButton
+                && GetComponentInParent<UIKScreen>(true) is UIKScreen screen)
             {
                 screen.UnregisterButton(this);
             }

@@ -2,13 +2,17 @@ using UnityEngine;
 
 namespace UIKit
 {
-    public class UIK2DActionDisplayButton : UIK2DButton
+    public class UIK2DActionDisplayButton : UIK2DButton, UIKActionTrigger
     {
         [SerializeField] protected UIK2DActionDisplay actionDisplay;
         [SerializeField] protected CanvasGroup canvasGroup;
+        // Off: the click input runs the action object without targeting the button, so only a cursor ever focuses it
+        [SerializeField] protected bool clickInputTargetsButton = true;
 
         private bool canExecute;
         private bool canClick;
+
+        protected override bool registersAsScreenButton => clickInputTargetsButton;
 
 
         protected override void OnPreConstruct(bool _isOnValidate)
@@ -17,6 +21,12 @@ namespace UIKit
             
             if (!_isOnValidate)
             {
+                if (!clickInputTargetsButton
+                    && GetComponentInParent<UIKScreen>(true) is UIKScreen screen)
+                {
+                    screen.RegisterActionTrigger(this);
+                }
+
                 if (GetOwningPlayer() is UIKPlayer player)
                 {
                     player.OnInputActionMapChanged.AddListener(Player_OnInputActionMapChanged);
@@ -35,6 +45,33 @@ namespace UIKit
             }
         }
 
+        protected override void OnPreDestroy()
+        {
+            base.OnPreDestroy();
+
+            if (!clickInputTargetsButton
+                && GetComponentInParent<UIKScreen>(true) is UIKScreen screen)
+            {
+                screen.UnregisterActionTrigger(this);
+            }
+        }
+
+
+        public UIKActionObject GetTriggerActionObject()
+        {
+            if (clickActionObject != null
+                && GetOwningPlayer() is UIKPlayer player)
+            {
+                return clickActionObject.GetActionObject(player);
+            }
+
+            return null;
+        }
+
+        public UIKInputAction GetTriggerInputAction()
+        {
+            return clickInputAction;
+        }
 
         protected virtual void UpdateCanInteract(bool _canExecute)
         {
@@ -43,9 +80,9 @@ namespace UIKit
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = canExecute ? 1f : 0.5f;
-                canvasGroup.interactable = canExecute && canClick;
-                canvasGroup.blocksRaycasts = canExecute && canClick;
             }
+
+            RefreshClickable();
         }
 
         protected virtual void UpdateCanClick(bool _canClick)
@@ -53,9 +90,22 @@ namespace UIKit
             canClick = _canClick;
             
             style.SetGraphicVisible(canClick);
-            
-            canvasGroup.interactable = canExecute && canClick;
-            canvasGroup.blocksRaycasts = canExecute && canClick;
+
+            RefreshClickable();
+        }
+
+        private void RefreshClickable()
+        {
+            if (canvasGroup != null)
+            {
+                canvasGroup.interactable = canExecute && canClick;
+                canvasGroup.blocksRaycasts = canExecute && canClick;
+            }
+
+            if (!clickInputTargetsButton)
+            {
+                SetInteractable(canExecute && canClick);
+            }
         }
 
         private void Player_OnInputActionMapChanged(string _actionMap)
