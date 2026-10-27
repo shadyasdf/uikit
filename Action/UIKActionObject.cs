@@ -15,6 +15,7 @@ namespace UIKit
     public abstract class UIKActionObject
     {
         public UnityEvent<bool> OnCanExecuteChanged = new();
+        public UnityEvent<string> OnActionTextChanged = new();
         
         protected UIKPlayer player;
         
@@ -27,6 +28,7 @@ namespace UIKit
         public virtual void OnReceivedContext(params object[] _args)
         {
             OnCanExecuteChanged?.Invoke(CanExecute());
+            OnActionTextChanged?.Invoke(GetActionText());
         }
         
         public virtual bool CanExecute()
@@ -35,6 +37,17 @@ namespace UIKit
         }
         
         public abstract void Execute();
+
+        public virtual string GetActionText()
+        {
+            if (GetType().GetCustomAttribute<UIKActionObjectAttribute>() is UIKActionObjectAttribute attribute
+                && !string.IsNullOrEmpty(attribute.actionText))
+            {
+                return attribute.actionText;
+            }
+
+            return string.Empty;
+        }
 
         public bool TryExecute()
         {
@@ -147,17 +160,6 @@ namespace UIKit
                 return actionObject.GetActionText();
             }
 
-            return string.Empty;
-        }
-        
-        public static string GetActionText(this UIKActionObject _actionObject)
-        {
-            if (_actionObject.GetType().GetCustomAttribute<UIKActionObjectAttribute>() is UIKActionObjectAttribute attribute
-                && !string.IsNullOrEmpty(attribute.actionText))
-            {
-                return attribute.actionText;
-            }
-            
             return string.Empty;
         }
     }

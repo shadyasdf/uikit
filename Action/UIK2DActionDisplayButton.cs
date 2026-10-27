@@ -37,6 +37,7 @@ namespace UIKit
                         && clickActionObject.GetActionObject(player) is UIKActionObject actionObjectInstance)
                     {
                         actionObjectInstance.OnCanExecuteChanged.AddListener(ActionObject_OnCanExecuteChanged);
+                        actionObjectInstance.OnActionTextChanged.AddListener(ActionObject_OnActionTextChanged);
                         ActionObject_OnCanExecuteChanged(actionObjectInstance.CanExecute());
                     }
                 }
@@ -138,6 +139,11 @@ namespace UIKit
         private void ActionObject_OnCanExecuteChanged(bool _canExecute)
         {
             UpdateCanInteract(_canExecute);
+        }
+
+        private void ActionObject_OnActionTextChanged(string _actionText)
+        {
+            RefreshActionDisplay();
         }
     }
 } // UIKit namespace
