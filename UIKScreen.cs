@@ -188,6 +188,7 @@ namespace UIKit
             {
                 if (HandleBackAction())
                 {
+                    UIKFeedback.Raise(UIKFeedbackKind.Back, this);
                     return true;
                 }
             }

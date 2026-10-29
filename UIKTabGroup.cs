@@ -177,6 +177,7 @@ namespace UIKit
                 }
             }
 
+            UIKFeedback.Raise(UIKFeedbackKind.TabChanged, this);
             OnCurrentTabChanged.Invoke(currentTabIndex);
         }
 

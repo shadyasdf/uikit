@@ -151,6 +151,7 @@ namespace UIKit
             targeted = true;
             
             OnTargeted?.Invoke(_player);
+            UIKFeedback.Raise(UIKFeedbackKind.Focus, this);
 
             if (transform.parent)
             {
@@ -166,6 +167,7 @@ namespace UIKit
             targeted = false;
             
             OnUntargeted?.Invoke(_player);
+            UIKFeedback.Raise(UIKFeedbackKind.Unfocus, this);
         }
 
         public void SetInteractable(bool _interactable)

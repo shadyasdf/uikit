@@ -318,6 +318,12 @@ namespace UIKit
 
             if (!_player.targetUI.CanPlayerSubmit(_player))
             {
+                if (_player.targetUI.locked
+                    && _player.targetUI.CanPlayerInteract(_player))
+                {
+                    UIKFeedback.Raise(UIKFeedbackKind.Denied, _player.targetUI);
+                }
+
                 return false;
             }
 

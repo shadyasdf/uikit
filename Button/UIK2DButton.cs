@@ -101,6 +101,7 @@ namespace UIKit
 
         public void CompleteClick(UIKEventData _eventData)
         {
+            UIKFeedback.Raise(UIKFeedbackKind.Submit, this);
             OnClickHandled.Invoke(_eventData);
 
             if (clickActionObject != null

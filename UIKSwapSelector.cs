@@ -69,11 +69,13 @@ namespace UIKit
             if (!isHolding)
             {
                 SetHeldIndex(index);
+                UIKFeedback.Raise(UIKFeedbackKind.SwapPickUp, buttons[index]);
                 return;
             }
 
             int swappedIndex = heldIndex;
             SetHeldIndex(-1);
+            UIKFeedback.Raise(UIKFeedbackKind.SwapDrop, buttons[index]);
             if (swappedIndex != index)
             {
                 OnSwapped.Invoke(swappedIndex, index);

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace UIKit
 {
-    public class UIK2DButtonSlider : UIK2DButtonPart, IPointerDownHandler, IDragHandler
+    public class UIK2DButtonSlider : UIK2DButtonPart, IPointerDownHandler, IDragHandler, IPointerUpHandler
     {
         [SerializeField] public UnityEvent<float> OnValueChanged = new();
 
@@ -52,6 +52,11 @@ namespace UIKit
             SetValueFromPointer(_eventData);
         }
 
+        public void OnPointerUp(PointerEventData _eventData)
+        {
+            UIKFeedback.Raise(UIKFeedbackKind.SliderRelease, uik2DButton);
+        }
+
         public override bool HandleButtonNavigation(UIKPlayer _player, UIKInputDirection _direction)
         {
             switch (_direction)
@@ -59,13 +64,13 @@ namespace UIKit
                 case UIKInputDirection.Left:
                     if (!uik2DButton.locked)
                     {
-                        SetValue(value - step);
+                        StepValue(value - step);
                     }
                     return true;
                 case UIKInputDirection.Right:
                     if (!uik2DButton.locked)
                     {
-                        SetValue(value + step);
+                        StepValue(value + step);
                     }
                     return true;
             }
@@ -105,6 +110,16 @@ namespace UIKit
             }
         }
 
+        protected void StepValue(float _value)
+        {
+            float previousValue = value;
+            SetValue(_value);
+            if (!Mathf.Approximately(value, previousValue))
+            {
+                UIKFeedback.Raise(UIKFeedbackKind.SliderStep, uik2DButton);
+            }
+        }
+
         public float GetNormalizedValue()
         {
             return maxValue > minValue ? Mathf.InverseLerp(minValue, maxValue, value) : 0f;
@@ -133,7 +148,7 @@ namespace UIKit
             }
 
             float normalized = Mathf.InverseLerp(track.rect.xMin, track.rect.xMax, localPoint.x);
-            SetValue(Mathf.Lerp(minValue, maxValue, normalized));
+            StepValue(Mathf.Lerp(minValue, maxValue, normalized));
         }
 
         protected virtual void RefreshVisuals()

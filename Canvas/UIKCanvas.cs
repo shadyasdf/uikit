@@ -423,8 +423,22 @@ namespace UIKit
             heldMoveDirection = _value.GetInputDirection();
             nextMoveRepeatTime = Time.unscaledTime + moveRepeatDelay;
 
-            return GetOwningPlayer() is UIKPlayer player
-                && player.TryNavigateUIByDirection(heldMoveDirection.Value);
+            if (GetOwningPlayer() is not UIKPlayer player)
+            {
+                return false;
+            }
+
+            if (player.TryNavigateUIByDirection(heldMoveDirection.Value))
+            {
+                return true;
+            }
+
+            if (player.targetUI)
+            {
+                UIKFeedback.Raise(UIKFeedbackKind.NavigationBump, player.targetUI);
+            }
+
+            return false;
         }
 
         protected virtual void UpdateHeldMove()

@@ -145,7 +145,12 @@ namespace UIKit
                 index = ((index % options.Count) + options.Count) % options.Count;
             }
 
+            int previousIndex = selectedIndex;
             SetSelectedIndex(index);
+            if (selectedIndex != previousIndex)
+            {
+                UIKFeedback.Raise(UIKFeedbackKind.PickerStep, uik2DButton);
+            }
         }
 
         protected virtual void RefreshVisuals()

@@ -43,7 +43,8 @@ namespace UIKit
             if (holdTime >= holdDuration)
             {
                 UIKEventData eventData = heldEventData;
-                CancelHold();
+                ResetHold();
+                UIKFeedback.Raise(UIKFeedbackKind.HoldComplete, uik2DButton);
                 uik2DButton.CompleteClick(eventData);
             }
         }
@@ -83,11 +84,22 @@ namespace UIKit
             heldEventData = _eventData;
             holdTime = 0f;
             RefreshProgress();
+            UIKFeedback.Raise(UIKFeedbackKind.HoldStart, uik2DButton);
 
             return true;
         }
 
         public void CancelHold()
+        {
+            if (holding)
+            {
+                UIKFeedback.Raise(UIKFeedbackKind.HoldCancel, uik2DButton);
+            }
+
+            ResetHold();
+        }
+
+        protected void ResetHold()
         {
             heldEventData = null;
             heldActions.Clear();

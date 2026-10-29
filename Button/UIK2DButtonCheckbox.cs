@@ -34,6 +34,7 @@ namespace UIKit
             if (toggleOnClick)
             {
                 SetChecked(!isChecked);
+                UIKFeedback.Raise(isChecked ? UIKFeedbackKind.CheckboxOn : UIKFeedbackKind.CheckboxOff, uik2DButton);
             }
         }
 
